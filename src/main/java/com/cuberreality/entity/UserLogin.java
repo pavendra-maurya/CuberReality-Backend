@@ -1,0 +1,39 @@
+package com.cuberreality.entity;
+
+import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+
+@Document("UserLogin")
+@Data
+public class UserLogin {
+
+    @Id
+    private BigInteger id;
+
+    @Field(value = "phone_number")
+    private String phoneNumber;
+
+    @Field(value = "user_uuid")
+    private String userUuid ;
+
+    @Field(value = "active")
+    private Boolean active;
+
+    @Field(value = "user_type")
+    private String userType;
+
+    @Field(value = "user_created_date")
+    private LocalDateTime userCreatedDate ;
+
+    @Field(value = "user_updated_date")
+    private LocalDateTime userUpdatedDate ;
+
+    @Field(value = "last_login_date")
+    private LocalDateTime lastLoginDate ;
+
+
+}

@@ -1,0 +1,24 @@
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto : update
+#  datasource:
+#    username : root
+#    password : root
+#    url:  jdbc:mysql://localhost:3306/nearbysepharmacy?allowPublicKeyRetrieval=true&useSSL=false
+#
+#server:
+#    port: 8080
+#
+##constants:
+##  otp_len: 6
+##  account_sid: ACa38280a59b0f0c453ea1a84dceb8ea48
+##  auth_token: 8d6f7eb833c7d9344d92ea36dc9161e2
+##  register_phone_number: +16787261905
+##  react_notification_server_key: key=AAAAtwOmtzc:APA91bHAOpuP8ubYFtwoQpOzLFZyLe1VjFqipyBAqPc3-DIA8XGKnj223TUXtMPIKTtvAUObVaLkuF80VPPYGchGzvC9pM4tvMZ1zC2TTZawh6pQhN9CUHRx0J4lOzm9PZFS_E2-m_1s
+##  shop_android_notification_server_key: key=AAAAtwOmtzc:APA91bHAOpuP8ubYFtwoQpOzLFZyLe1VjFqipyBAqPc3-DIA8XGKnj223TUXtMPIKTtvAUObVaLkuF80VPPYGchGzvC9pM4tvMZ1zC2TTZawh6pQhN9CUHRx0J4lOzm9PZFS_E2-m_1s
+##  delivery_android_notification_server_key: key=AAAAtwOmtzc:APA91bHAOpuP8ubYFtwoQpOzLFZyLe1VjFqipyBAqPc3-DIA8XGKnj223TUXtMPIKTtvAUObVaLkuF80VPPYGchGzvC9pM4tvMZ1zC2TTZawh6pQhN9CUHRx0J4lOzm9PZFS_E2-m_1s
+##  customer_app_version: 50001
+##  shop_app_version: 4200
+##  delivery_app_version: 100
+##  coupon_code_service_url: http://147.139.31.31:8081
