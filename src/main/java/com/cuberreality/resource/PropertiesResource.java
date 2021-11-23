@@ -1,6 +1,5 @@
 package com.cuberreality.resource;
 
-import com.cuberreality.request.CreateLeadRequest;
 import com.cuberreality.request.PropertiesSearchRequest;
 import com.cuberreality.request.UpdateLeadRequest;
 import com.cuberreality.response.BaseResponse;
@@ -33,26 +32,5 @@ public class PropertiesResource {
     public ResponseEntity<?> getProperty(@PathVariable String id, @PathVariable String referred_by_id) {
         return new ResponseEntity<>(new BaseResponse<>(propertiesService.getProperty(id, referred_by_id), ""), HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/lead", method = RequestMethod.POST)
-    public ResponseEntity<?> createLead(CreateLeadRequest createLeadRequest) {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.createLead(createLeadRequest), ""), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/lead/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getLead(@PathVariable String id) {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getLead(id), ""), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/leads", method = RequestMethod.GET)
-    public ResponseEntity<?> getLeads() {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getLeads(), ""), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/lead", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateLead(UpdateLeadRequest updateLeadRequest) {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.updateLead(updateLeadRequest), ""), HttpStatus.OK);
-    }
-
 
 }

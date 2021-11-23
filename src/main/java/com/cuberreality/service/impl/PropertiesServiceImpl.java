@@ -3,12 +3,8 @@ package com.cuberreality.service.impl;
 import com.cuberreality.entity.*;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
-import com.cuberreality.request.CreateLeadRequest;
 import com.cuberreality.request.PropertiesSearchRequest;
 import com.cuberreality.request.UpdateLeadRequest;
-import com.cuberreality.response.CreateLeadResponse;
-import com.cuberreality.response.LeadResponse;
-import com.cuberreality.response.PropertiesResponse;
 import com.cuberreality.response.PropertyDetailedResponse;
 import com.cuberreality.service.PropertiesService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +36,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
         List<PropertiesSchema> propertiesSchemaList = new ArrayList<>();
         for (String id : propertyIdList) {
-            propertiesSchemaList.add(propertiesRepository.findById(id));
+            propertiesSchemaList.add(propertiesRepository.findById(id).get());
         }
 
         return propertiesSchemaList;
@@ -96,27 +92,6 @@ public class PropertiesServiceImpl implements PropertiesService {
 
         return propertyIdList;
 
-    }
-
-
-    @Override
-    public CreateLeadResponse createLead(CreateLeadRequest createLeadRequest) {
-        return null;
-    }
-
-    @Override
-    public LeadResponse getLead(String id) {
-        return null;
-    }
-
-    @Override
-    public List<LeadResponse> getLeads() {
-        return null;
-    }
-
-    @Override
-    public List<LeadResponse> updateLead(UpdateLeadRequest updateLeadRequest) {
-        return null;
     }
 
     @Override

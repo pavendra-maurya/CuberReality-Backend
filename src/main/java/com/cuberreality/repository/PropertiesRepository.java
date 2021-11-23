@@ -4,12 +4,11 @@ import com.cuberreality.entity.PropertiesSchema;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigInteger;
-import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface PropertiesRepository extends MongoRepository<PropertiesSchema, Long> {
+public interface PropertiesRepository extends MongoRepository<PropertiesSchema, String> {
 
-       PropertiesSchema findById(String id);
+       Optional<PropertiesSchema> findById(String id);
 
 }
