@@ -34,30 +34,7 @@ public class PropertiesResource {
         return new ResponseEntity<>(new BaseResponse<>(propertiesService.getProperty(property_id, referred_by_id), ""), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/reseller/occupations", method = RequestMethod.GET)
-    public ResponseEntity<?> getResellerOccupations() throws Exception {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getResellersOccupation(), ""), HttpStatus.OK);
-    }
 
 
-    @RequestMapping(value = "/lead", method = RequestMethod.POST)
-    public ResponseEntity<?> createLead(@RequestBody CreateLeadRequest createLeadRequest) throws Exception {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.createLead(createLeadRequest), ""), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/lead/{id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getLead(@PathVariable String id) {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getLead(id), ""), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/leads", method = RequestMethod.GET)
-    public ResponseEntity<?> getLeads() {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getLeads(), ""), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/lead", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateLead(UpdateLeadRequest updateLeadRequest) {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.updateLead(updateLeadRequest), ""), HttpStatus.OK);
-    }
 
 }

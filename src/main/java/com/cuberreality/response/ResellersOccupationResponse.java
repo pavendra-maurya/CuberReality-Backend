@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ResellersOccupation {
+public class ResellersOccupationResponse {
 
     private List<String> resellersOccupation;
 }
