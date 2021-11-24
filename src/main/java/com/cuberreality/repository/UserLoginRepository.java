@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface UserLoginRepository extends MongoRepository<UserLogin, Long> {
+public interface UserLoginRepository extends MongoRepository<UserLogin, String> {
 
     UserLogin findByPhoneNumber(String phone);
 

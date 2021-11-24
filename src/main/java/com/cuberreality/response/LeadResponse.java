@@ -1,5 +1,4 @@
 package com.cuberreality.response;
 
-public class PropertiesResponse {
-
+public class LeadResponse {
 }

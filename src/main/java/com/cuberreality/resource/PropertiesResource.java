@@ -1,5 +1,6 @@
 package com.cuberreality.resource;
 
+import com.cuberreality.request.CreateLeadRequest;
 import com.cuberreality.request.PropertiesSearchRequest;
 import com.cuberreality.request.UpdateLeadRequest;
 import com.cuberreality.response.BaseResponse;
@@ -28,9 +29,35 @@ public class PropertiesResource {
         return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertiesInSpace(propertiesSearchRequest1), ""), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/property/{id}/{referred_by_id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getProperty(@PathVariable String id, @PathVariable String referred_by_id) {
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getProperty(id, referred_by_id), ""), HttpStatus.OK);
+    @RequestMapping(value = "/property/{referred_by_id}/{property_id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getProperty(@PathVariable String property_id, @PathVariable String referred_by_id) {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getProperty(property_id, referred_by_id), ""), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/reseller/occupations", method = RequestMethod.GET)
+    public ResponseEntity<?> getResellerOccupations() throws Exception {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getResellersOccupation(), ""), HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/lead", method = RequestMethod.POST)
+    public ResponseEntity<?> createLead(@RequestBody CreateLeadRequest createLeadRequest) throws Exception {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.createLead(createLeadRequest), ""), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/lead/{id}", method = RequestMethod.GET)
+    public ResponseEntity<?> getLead(@PathVariable String id) {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getLead(id), ""), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/leads", method = RequestMethod.GET)
+    public ResponseEntity<?> getLeads() {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getLeads(), ""), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/lead", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateLead(UpdateLeadRequest updateLeadRequest) {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.updateLead(updateLeadRequest), ""), HttpStatus.OK);
     }
 
 }

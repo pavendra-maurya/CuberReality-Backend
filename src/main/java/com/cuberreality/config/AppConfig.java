@@ -24,5 +24,7 @@ public class AppConfig {
 	private  String crm_client_id;
 	private String crm_client_secret;
 	private  String crm_base_url;
+	private  String crm_auth_base_url;
+	private  String bearer_token;
 
 }

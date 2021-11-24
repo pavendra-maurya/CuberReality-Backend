@@ -24,12 +24,12 @@ public class AuthorizationToken {
     @Autowired
     private RestTemplate restTemplate;
 
-    public String authorizationToken = "1000.cbb3355ab1691f4e03ceabf263287afb.f13d703d47f9250402f4935b84aa9ae1";
+    public String authorizationToken = "1000.bf720b26ae5040889cc415ccd87b1b7f.699136f6e3202b583702fc87b08b7a57";
 
     //    @Scheduled(fixedRate = 20000)
     public void crmRefreshAuthorizationToken() {
 
-        String url = appConfig.getCrm_base_url() + "/oauth/v2/token";
+        String url = appConfig.getCrm_auth_base_url() + "/oauth/v2/token";
 
         HttpEntity<MultiValueMap<String, Object>> entity = getHeaderEntity();
 
@@ -67,6 +67,6 @@ public class AuthorizationToken {
             return this.authorizationToken;
         }
 
-        return this.authorizationToken;
+        return appConfig.getBearer_token();//this.authorizationToken;
     }
 }

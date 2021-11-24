@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import java.math.BigInteger;
+
 import java.time.LocalDateTime;
 
 @Document("UserLogin")
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class UserLogin {
 
     @Id
-    private BigInteger id;
+    private String id;
 
     @Field(value = "phone_number")
     private String phoneNumber;
@@ -34,6 +34,4 @@ public class UserLogin {
 
     @Field(value = "last_login_date")
     private LocalDateTime lastLoginDate ;
-
-
 }

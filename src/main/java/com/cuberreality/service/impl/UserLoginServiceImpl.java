@@ -50,10 +50,10 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     private OtpGenerationService otpService;
 
 
-    public CustomUserDetails loadUserByUsername(String phone,String userType) throws UsernameNotFoundException {
-        UserLogin userLogin = userLoginRepository.findByPhoneNumberAndUserType(phone,userType);
+    public CustomUserDetails loadUserByUsername(String phone, String userType) throws UsernameNotFoundException {
+        UserLogin userLogin = userLoginRepository.findByPhoneNumberAndUserType(phone, userType);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_"+userType));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + userType));
 
         if (userLogin == null) {
             log.error("Mobile number is not registered " + phone);
@@ -72,13 +72,13 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     }
 
 
-    private String getToken(String phoneNumber,String userType) {
-        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(phoneNumber,userType);
+    private String getToken(String phoneNumber, String userType) {
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(phoneNumber, userType);
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_"+userType));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + userType));
         final Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails,
                 AppConstant.LOGIN_PASSWORD, authorities);
-        final String token = jwtTokenUtil.generateToken(authentication,userType);
+        final String token = jwtTokenUtil.generateToken(authentication, userType);
         return token;
     }
 
@@ -87,7 +87,9 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     public RegisterUserResponse registerUser(OtpRequest otpRequest) throws OtpException {
         // TODO Auto-generated method stub
 
-        if (otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))|| true) {
+        boolean newUser = false;
+
+        if (otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
             UserLogin userLogin = userLoginRepository.findByPhoneNumber(otpRequest.getPhoneNumber());
 
             if (Objects.isNull(userLogin)) {
@@ -101,8 +103,9 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
             } else {
                 userLogin.setLastLoginDate(LocalDateTime.now());
                 userLogin = userLoginRepository.save(userLogin);
+                newUser = true;
             }
-            return new RegisterUserResponse(getToken(userLogin.getPhoneNumber(), UserType.RESELLER));
+            return new RegisterUserResponse(getToken(userLogin.getPhoneNumber(), UserType.RESELLER), newUser);
 
         } else {
             throw new OtpException("Entered wrong otp, Please enter correct otp");
@@ -129,7 +132,7 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
         CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserJwtTokenValidationResponse userJwtTokenValidationResponse = new UserJwtTokenValidationResponse();
 
-        if(!customUserDetails.getAppType().equals(UserType.RESELLER))
+        if (!customUserDetails.getAppType().equals(UserType.RESELLER))
             return userJwtTokenValidationResponse;
 
         userJwtTokenValidationResponse.setAppType(customUserDetails.getAppType());
