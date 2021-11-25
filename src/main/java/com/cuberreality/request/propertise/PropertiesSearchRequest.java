@@ -1,4 +1,4 @@
-package com.cuberreality.request;
+package com.cuberreality.request.propertise;
 
 import lombok.Data;
 

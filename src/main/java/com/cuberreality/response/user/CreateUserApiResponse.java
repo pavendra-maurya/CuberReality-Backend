@@ -1,4 +1,4 @@
-package com.cuberreality.response;
+package com.cuberreality.response.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -6,8 +6,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ApiResponseCapture<T> {
+public class CreateUserApiResponse {
+
 
     @JsonProperty("data")
-    private List<T> data;
+    private List<CreateUserDetailsApiResponse> data;
+
 }

@@ -1,5 +1,6 @@
-package com.cuberreality.request;
+package com.cuberreality.request.leads;
 
+import com.cuberreality.request.leads.CreateLeadModel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

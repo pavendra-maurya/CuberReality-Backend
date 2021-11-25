@@ -1,7 +1,6 @@
 package com.cuberreality.entity;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -12,19 +11,37 @@ import java.util.List;
 @Data
 public class UserProfilesSchema {
 
-    @Id
+    @Field("_id")
     private String mongoId;
 
-    @Field(value = "phone_number")
+    @Field(value = "Mobile")
     private String phoneNumber;
+
+    @Field(value = "Full_Name")
+    private String userName;
 
     @Field(value = "user_uuid")
     private String userUuid;
 
-    @Field(value = "user_type")
-    private String userType;
+    @Field(value = "PAN_Number")
+    private String PANNumber;
 
-    @Field(value = "user_occupation")
+    @Field(value = "User_Status")
+    private String userStatus;
+
+    @Field(value = "Client_ID")
+    private String clientID;
+
+    @Field(value = "Wallet")
+    private int Wallet;
+
+    @Field(value = "Total_Earned")
+    private int totalEarned;
+
+    @Field(value = "user_type")
+    private List<String> userType;
+
+    @Field(value = "Reseller_Is")
     private List<String> userOccupationList;
 
     @Field(value = "id")
@@ -32,3 +49,4 @@ public class UserProfilesSchema {
 
 
 }
+

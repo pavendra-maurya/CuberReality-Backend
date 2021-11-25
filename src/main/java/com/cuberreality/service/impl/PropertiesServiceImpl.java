@@ -4,22 +4,14 @@ import com.cuberreality.entity.*;
 import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
-import com.cuberreality.request.CreateLeadRequest;
-import com.cuberreality.request.PropertiesSearchRequest;
-import com.cuberreality.request.UpdateLeadRequest;
-import com.cuberreality.response.*;
+import com.cuberreality.repository.VisitedPropertiesRepository;
+import com.cuberreality.request.propertise.PropertiesSearchRequest;
 import com.cuberreality.service.PropertiesService;
 import com.cuberreality.util.ApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -34,6 +26,9 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     @Autowired
     private SearchRepository searchRepository;
+
+    @Autowired
+    private VisitedPropertiesRepository visitedPropertiesRepository;
 
     @Override
     public List<PropertiesSchema> getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
@@ -106,17 +101,40 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     @Override
-    public PropertiesSchema getProperty(String id, String referred_by_id) {
+    public PropertiesSchema getPropertyByCustomer(String property_id, String referred_by_id) {
 
+        Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
 
-        Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(id);
+        if (propertiesSchema.isPresent()) {
+            Optional<VisitedProperties> visitedProperties = visitedPropertiesRepository.findByPropertyIdAndResellerId(property_id, referred_by_id);
+
+            VisitedProperties newVisitedProperties;
+
+            if (visitedProperties.isPresent()) {
+                newVisitedProperties = visitedProperties.get();
+                newVisitedProperties.setVisitCount(newVisitedProperties.getVisitCount() + 1);
+            } else {
+                newVisitedProperties = new VisitedProperties();
+                newVisitedProperties.setPropertyId(property_id);
+                newVisitedProperties.setVisitCount(1);
+                newVisitedProperties.setResellerId(referred_by_id);
+            }
+            visitedPropertiesRepository.save(newVisitedProperties);
+
+            return propertiesSchema.get();
+        }
+
+        throw new RecordNotFoundException("Given Property id does not exist");
+    }
+
+    @Override
+    public PropertiesSchema getPropertyById(String property_id) {
+        Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
 
         if (propertiesSchema.isPresent())
             return propertiesSchema.get();
         throw new RecordNotFoundException("Given Property id does not exist");
     }
-
-
 
 
 }

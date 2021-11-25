@@ -1,9 +1,9 @@
 package com.cuberreality.service.impl;
 
-import com.cuberreality.request.CreateLeadRequest;
-import com.cuberreality.request.UpdateLeadRequest;
-import com.cuberreality.response.CreateLeadResponse;
-import com.cuberreality.response.LeadResponse;
+import com.cuberreality.request.leads.CreateLeadRequest;
+import com.cuberreality.request.leads.UpdateLeadRequest;
+import com.cuberreality.response.leads.CreateLeadResponse;
+import com.cuberreality.response.leads.LeadResponse;
 import com.cuberreality.service.LeadService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

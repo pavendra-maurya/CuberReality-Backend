@@ -1,12 +1,13 @@
-package com.cuberreality.response;
+package com.cuberreality.response.leads;
 
+import com.cuberreality.response.leads.CreatedBy;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
- class Details{
+ public class Details{
     @JsonProperty("Modified_Time")
     public Date modified_Time;
     @JsonProperty("Modified_By") 

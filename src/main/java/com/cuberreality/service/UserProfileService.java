@@ -1,15 +1,16 @@
 package com.cuberreality.service;
 
-import com.cuberreality.request.CreateUserRequest;
-import com.cuberreality.request.UpdateUserRequest;
-import com.cuberreality.response.ResellersOccupationResponse;
-import com.cuberreality.response.UserDetailsResponse;
+import com.cuberreality.entity.UserProfilesSchema;
+import com.cuberreality.request.user.CreateUserRequest;
+import com.cuberreality.request.user.UpdateUserRequest;
+import com.cuberreality.response.user.ResellersOccupationResponse;
+import com.cuberreality.response.user.UserDetailsApiResponse;
 
 public interface UserProfileService {
 
-    UserDetailsResponse getUserDetails(String user_id);
+    UserDetailsApiResponse getUserDetails(String user_id);
 
-    Object createUserProfile(CreateUserRequest createUserRequest);
+    String createUserProfile(CreateUserRequest createUserRequest) throws Exception;
 
     Object updateUserDetails(UpdateUserRequest updateUserRequest);
 

@@ -1,7 +1,7 @@
 package com.cuberreality.service.impl;
 
 import com.cuberreality.config.AppConfig;
-import com.cuberreality.response.RefreshTokenResponse;
+import com.cuberreality.response.login.RefreshTokenResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;

@@ -1,11 +1,11 @@
 package com.cuberreality.service;
 
 import com.cuberreality.error.OtpException;
-import com.cuberreality.request.OtpRequest;
-import com.cuberreality.request.UserLoginRequest;
-import com.cuberreality.response.OtpResponse;
-import com.cuberreality.response.RegisterUserResponse;
-import com.cuberreality.response.UserJwtTokenValidationResponse;
+import com.cuberreality.request.login.OtpRequest;
+import com.cuberreality.request.login.UserLoginRequest;
+import com.cuberreality.response.login.OtpResponse;
+import com.cuberreality.response.user.RegisterUserResponse;
+import com.cuberreality.response.user.UserJwtTokenValidationResponse;
 import org.springframework.stereotype.Service;
 
 @Service

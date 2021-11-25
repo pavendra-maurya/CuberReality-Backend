@@ -1,7 +1,7 @@
 package com.cuberreality.resource;
 
-import com.cuberreality.request.CreateUserRequest;
-import com.cuberreality.request.UpdateUserRequest;
+import com.cuberreality.request.user.CreateUserRequest;
+import com.cuberreality.request.user.UpdateUserRequest;
 import com.cuberreality.response.BaseResponse;
 import com.cuberreality.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class UserProfileResource {
     }
 
     @RequestMapping(value = "/user-profile", method = RequestMethod.POST)
-    public ResponseEntity<?> createUserProfile(@RequestBody CreateUserRequest createUserRequest) {
+    public ResponseEntity<?> createUserProfile(@RequestBody CreateUserRequest createUserRequest) throws Exception {
         return new ResponseEntity<>(new BaseResponse<>(userProfileService.createUserProfile(createUserRequest), ""), HttpStatus.OK);
     }
 

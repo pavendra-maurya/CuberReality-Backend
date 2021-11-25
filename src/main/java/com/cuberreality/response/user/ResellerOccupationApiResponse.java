@@ -1,4 +1,4 @@
-package com.cuberreality.response;
+package com.cuberreality.response.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

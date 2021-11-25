@@ -1,7 +1,7 @@
 package com.cuberreality.resource;
 
-import com.cuberreality.request.CreateLeadRequest;
-import com.cuberreality.request.UpdateLeadRequest;
+import com.cuberreality.request.leads.CreateLeadRequest;
+import com.cuberreality.request.leads.UpdateLeadRequest;
 import com.cuberreality.response.BaseResponse;
 import com.cuberreality.service.LeadService;
 import org.springframework.beans.factory.annotation.Autowired;

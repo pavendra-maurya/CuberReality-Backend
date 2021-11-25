@@ -1,4 +1,4 @@
-package com.cuberreality.response;
+package com.cuberreality.response.leads;
 
 import lombok.Data;
 
