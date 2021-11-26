@@ -1,5 +1,6 @@
 package com.cuberreality.resource;
 
+import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
 import com.cuberreality.response.BaseResponse;
@@ -36,6 +37,7 @@ public class UserProfileResource {
     public ResponseEntity<?> getResellerOccupations() throws Exception {
         return new ResponseEntity<>(new BaseResponse<>(userProfileService.getResellersOccupation(), ""), HttpStatus.OK);
     }
+
 
 
 }

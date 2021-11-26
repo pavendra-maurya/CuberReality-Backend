@@ -8,6 +8,9 @@ constants:
   header_string: Authorization
   authorities_key: scopes
   otp_len: 6
+#  account_sid: AC3d12ec70424b027d6a2122a0cca3022c
+#  auth_token: f4da006a65cd6b5e143b2dd345e5e1e3
+#  register_phone_number: +17865634883
   account_sid: ACa38280a59b0f0c453ea1a84dceb8ea48
   auth_token: 8d6f7eb833c7d9344d92ea36dc9161e2
   register_phone_number: +16787261905

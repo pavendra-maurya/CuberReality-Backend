@@ -5,6 +5,7 @@ import com.cuberreality.constant.UserType;
 import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.error.OtpException;
 import com.cuberreality.repository.UserLoginRepository;
+import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.login.OtpRequest;
 import com.cuberreality.request.login.UserLoginRequest;
 import com.cuberreality.response.login.OtpResponse;
@@ -89,7 +90,8 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
 
         boolean newUser = false;
 
-        if (true ||otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
+        if (otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
+
             UserLogin userLogin = userLoginRepository.findByPhoneNumber(otpRequest.getPhoneNumber());
 
             if (Objects.isNull(userLogin)) {
@@ -140,6 +142,20 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
         userJwtTokenValidationResponse.setPhone(customUserDetails.getUsername());
         userJwtTokenValidationResponse.setUuid(customUserDetails.getUserUuid());
         return userJwtTokenValidationResponse;
+    }
+
+    @Override
+    public String updateDeviceToken(DeviceTokenRequest deviceToken) {
+        UserJwtTokenValidationResponse userJwtTokenValidationResponse = userJwtTokenValidation();
+        UserLogin userLogin = userLoginRepository.findByPhoneNumber(userJwtTokenValidationResponse.getPhone());
+        userLogin.setDeviceToken(deviceToken.getDeviceToken());
+        userLoginRepository.save(userLogin);
+        return "Successfully updated";
+    }
+
+    @Override
+    public String getDeviceToken(String userID) {
+        return null;
     }
 
 

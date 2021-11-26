@@ -1,6 +1,7 @@
 package com.cuberreality.service;
 
 import com.cuberreality.error.OtpException;
+import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.login.OtpRequest;
 import com.cuberreality.request.login.UserLoginRequest;
 import com.cuberreality.response.login.OtpResponse;
@@ -17,4 +18,7 @@ public interface UserLoginService {
 
     public UserJwtTokenValidationResponse userJwtTokenValidation();
 
+    String updateDeviceToken(DeviceTokenRequest deviceToken);
+
+    String getDeviceToken(String userID);
 }

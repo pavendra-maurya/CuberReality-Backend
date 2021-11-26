@@ -1,6 +1,7 @@
 package com.cuberreality.resource;
 
 import com.cuberreality.error.OtpException;
+import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.login.OtpRequest;
 import com.cuberreality.request.login.UserLoginRequest;
 import com.cuberreality.response.BaseResponse;
@@ -39,7 +40,10 @@ public class LoginResource {
     }
 
 
-
+    @RequestMapping(method = RequestMethod.PUT,value = "/device-token")
+    public ResponseEntity<?> updateDeviceToken(@RequestBody DeviceTokenRequest deviceToken) {
+        return  new ResponseEntity<>(new BaseResponse<>(userLoginService.updateDeviceToken(deviceToken), ""), HttpStatus.OK);
+    }
 
 
 }

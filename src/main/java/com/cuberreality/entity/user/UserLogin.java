@@ -23,6 +23,9 @@ public class UserLogin {
     @Field(value = "active")
     private Boolean active;
 
+    @Field(value = "device_token")
+    private String deviceToken;
+
     @Field(value = "user_type")
     private String userType;
 
