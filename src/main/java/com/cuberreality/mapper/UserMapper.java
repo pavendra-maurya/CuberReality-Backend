@@ -1,6 +1,6 @@
 package com.cuberreality.mapper;
 
-import com.cuberreality.entity.UserProfilesSchema;
+import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.response.user.UserDetailsApiResponse;
 import org.mapstruct.Mapper;
 

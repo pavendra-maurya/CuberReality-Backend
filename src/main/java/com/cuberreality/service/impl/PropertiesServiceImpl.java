@@ -1,6 +1,9 @@
 package com.cuberreality.service.impl;
 
-import com.cuberreality.entity.*;
+
+import com.cuberreality.entity.propertise.PropertiesSchema;
+import com.cuberreality.entity.propertisesearch.*;
+import com.cuberreality.entity.user.VisitedProperties;
 import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
@@ -41,9 +44,8 @@ public class PropertiesServiceImpl implements PropertiesService {
         for (String id : propertyIdList) {
 
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(id);
-
             propertiesSchema.ifPresent(propertiesSchemaList::add);
-        }
+       }
 
         return propertiesSchemaList;
     }

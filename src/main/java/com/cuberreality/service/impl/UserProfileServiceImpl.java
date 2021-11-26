@@ -1,6 +1,6 @@
 package com.cuberreality.service.impl;
 
-import com.cuberreality.entity.UserProfilesSchema;
+import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.mapper.UserMapper;
 import com.cuberreality.repository.UserProfileRepository;

@@ -1,4 +1,4 @@
-package com.cuberreality.entity;
+package com.cuberreality.entity.propertisesearch;
 
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;

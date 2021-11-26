@@ -1,6 +1,7 @@
 package com.cuberreality.repository;
 
-import com.cuberreality.entity.PropertiesSchema;
+
+import com.cuberreality.entity.propertise.PropertiesSchema;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

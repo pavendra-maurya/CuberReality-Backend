@@ -1,7 +1,7 @@
 package com.cuberreality.repository;
 
 
-import com.cuberreality.entity.UserLogin;
+import com.cuberreality.entity.user.UserLogin;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

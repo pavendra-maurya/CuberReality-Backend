@@ -2,7 +2,7 @@ package com.cuberreality.service.impl;
 
 import com.cuberreality.constant.AppConstant;
 import com.cuberreality.constant.UserType;
-import com.cuberreality.entity.UserLogin;
+import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.error.OtpException;
 import com.cuberreality.repository.UserLoginRepository;
 import com.cuberreality.request.login.OtpRequest;

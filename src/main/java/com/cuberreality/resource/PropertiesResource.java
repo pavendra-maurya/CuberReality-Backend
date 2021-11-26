@@ -18,13 +18,13 @@ public class PropertiesResource {
 
 
     @RequestMapping(value = "/search/properties", method = RequestMethod.POST)
-    public ResponseEntity<?> getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
-//        PropertiesSearchRequest propertiesSearchRequest1 = new PropertiesSearchRequest();
-//        propertiesSearchRequest1.setCity("Bangalore");
-//        propertiesSearchRequest1.setCountry("no_data");
-//        propertiesSearchRequest1.setState("no_data");
-//        propertiesSearchRequest1.setSubArea("Sarjapur_Road");
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertiesInSpace(propertiesSearchRequest), ""), HttpStatus.OK);
+    public ResponseEntity<?> getPropertiesInSpace(@RequestBody  PropertiesSearchRequest propertiesSearchRequest) {
+        PropertiesSearchRequest propertiesSearchRequest1 = new PropertiesSearchRequest();
+        propertiesSearchRequest1.setCity("Bangalore");
+        propertiesSearchRequest1.setCountry("no_data");
+        propertiesSearchRequest1.setState("no_data");
+        propertiesSearchRequest1.setSubArea("Sarjapur_Road");
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertiesInSpace(propertiesSearchRequest1), ""), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/property/{referred_by_id}/{property_id}", method = RequestMethod.GET)

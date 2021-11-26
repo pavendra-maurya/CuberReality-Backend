@@ -1,6 +1,7 @@
 package com.cuberreality.service;
 
-import com.cuberreality.entity.PropertiesSchema;
+
+import com.cuberreality.entity.propertise.PropertiesSchema;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
 
 import java.util.List;

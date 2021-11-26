@@ -1,6 +1,5 @@
 package com.cuberreality.service;
 
-import com.cuberreality.entity.UserProfilesSchema;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
 import com.cuberreality.response.user.ResellersOccupationResponse;
