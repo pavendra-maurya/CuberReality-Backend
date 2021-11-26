@@ -5,10 +5,12 @@ import com.cuberreality.entity.propertise.PropertiesSchema;
 import com.cuberreality.entity.propertisesearch.*;
 import com.cuberreality.entity.user.VisitedProperties;
 import com.cuberreality.error.RecordNotFoundException;
+import com.cuberreality.mapper.PropertiesMapper;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
 import com.cuberreality.repository.VisitedPropertiesRepository;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
+import com.cuberreality.response.propertise.PropertiesSearchResponse;
 import com.cuberreality.service.PropertiesService;
 import com.cuberreality.util.ApiClient;
 import lombok.extern.slf4j.Slf4j;
@@ -33,23 +35,26 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Autowired
     private VisitedPropertiesRepository visitedPropertiesRepository;
 
+    @Autowired
+    private PropertiesMapper propertiesMapper;
+
     @Override
-    public List<PropertiesSchema> getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
+    public List<PropertiesSearchResponse> getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
 
         List<SearchSchema> searchSchemas = searchRepository.findAll();
 
         List<String> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
 
-        List<PropertiesSchema> propertiesSchemaList = new ArrayList<>();
+        List<PropertiesSearchResponse> propertiesSearchResponseList = new ArrayList<>();
         for (String id : propertyIdList) {
 
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(id);
-            propertiesSchema.ifPresent(propertiesSchemaList::add);
-       }
 
-        return propertiesSchemaList;
+            propertiesSchema.ifPresent(schema -> propertiesSearchResponseList.add(propertiesMapper.toPropertiesResponse(schema)));
+
+        }
+        return propertiesSearchResponseList;
     }
-
 
     private List<String> getPropertyIds(List<SearchSchema> searchSchema, PropertiesSearchRequest propertiesSearchRequest) {
 
@@ -103,7 +108,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     @Override
-    public PropertiesSchema getPropertyByCustomer(String property_id, String referred_by_id) {
+    public PropertiesSearchResponse getPropertyByCustomer(String property_id, String referred_by_id) {
 
         Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
 
@@ -123,18 +128,18 @@ public class PropertiesServiceImpl implements PropertiesService {
             }
             visitedPropertiesRepository.save(newVisitedProperties);
 
-            return propertiesSchema.get();
+            return propertiesMapper.toPropertiesResponse(propertiesSchema.get());
         }
 
         throw new RecordNotFoundException("Given Property id does not exist");
     }
 
     @Override
-    public PropertiesSchema getPropertyById(String property_id) {
+    public PropertiesSearchResponse getPropertyById(String property_id) {
         Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
 
         if (propertiesSchema.isPresent())
-            return propertiesSchema.get();
+            return propertiesMapper.toPropertiesResponse(propertiesSchema.get());
         throw new RecordNotFoundException("Given Property id does not exist");
     }
 

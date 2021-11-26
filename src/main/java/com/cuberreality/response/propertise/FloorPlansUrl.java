@@ -1,13 +1,14 @@
 package com.cuberreality.response.propertise;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
 public class FloorPlansUrl {
-    @Field("2BHK")
+    @JsonProperty("2BHK")
     private _2BHKUrl _2bhkUrl;
 
-    @Field("3BHK")
+    @JsonProperty("3BHK")
     private _3BHKUrl _3bhkUrl;
 }

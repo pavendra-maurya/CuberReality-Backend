@@ -1,5 +1,6 @@
 package com.cuberreality.response.propertise;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -7,16 +8,16 @@ import java.util.List;
 
 @Data
 public class _3BHKUrl {
-    @Field("Type1")
+    @JsonProperty("Type1")
     private List<String> type1;
-    @Field("Type2")
+    @JsonProperty("Type2")
     private List<String> type2;
-    @Field("Type3")
+    @JsonProperty("Type3")
     private List<String> type3;
-    @Field("Type4")
+    @JsonProperty("Type4")
     private List<String> type4;
-    @Field("Type5")
+    @JsonProperty("Type5")
     private List<String> type5;
-    @Field("Type6")
+    @JsonProperty("Type6")
     private List<String> type6;
 }

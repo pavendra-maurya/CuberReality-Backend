@@ -1,5 +1,6 @@
 package com.cuberreality.response.propertise;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -10,144 +11,144 @@ import java.util.List;
 
 @Data
 @Document("Properties")
-public class PropertiesSchema {
+public class PropertiesSearchResponse {
 
-    @Field("_id")
+    @JsonProperty("_id")
     private String mongoId;
 
-    @Field("Product_Category")
+    @JsonProperty("Product_Category")
     private String productCategory;
 
-    @Field("Description")
+    @JsonProperty("Description")
     private Object description;
 
-    @Field("__currency_symbol")
+    @JsonProperty("__currency_symbol")
     private String currencySymbol;
 
-    @Field("BHK")
+    @JsonProperty("BHK")
     private List<String> bHK;
 
-    @Field("Address")
+    @JsonProperty("Address")
     private String address;
 
-    @Field("__review_process")
+    @JsonProperty("__review_process")
     private ReviewProcess reviewProcess;
 
-    @Field("Sales_Start_Date")
+    @JsonProperty("Sales_Start_Date")
     private String salesStartDate;
 
-    @Field("Door_Site_Number")
+    @JsonProperty("Door_Site_Number")
     private Object doorSiteNumber;
 
-    @Field("Product_Active")
+    @JsonProperty("Product_Active")
     private boolean productActive;
 
-    @Field("Record_Image")
+    @JsonProperty("Record_Image")
     private Object recordImage;
 
-    @Field("__review")
+    @JsonProperty("__review")
     private Object review;
 
-    @Field("Product_Code")
+    @JsonProperty("Product_Code")
     private Object productCode;
 
-    @Field("__state")
+    @JsonProperty("__state")
     private String state;
 
-    @Field("__process_flow")
+    @JsonProperty("__process_flow")
     private boolean processFlow;
 
-    @Field("id")
+    @JsonProperty("id")
     private String id;
 
-    @Field("Property_Listing_Tags")
+    @JsonProperty("Property_Listing_Tags")
     private List<Object> propertyListingTags;
 
-    @Field("__approved")
+    @JsonProperty("__approved")
     private boolean approved;
 
-    @Field("Status")
+    @JsonProperty("Status")
     private List<String> status;
 
-    @Field("__approval")
+    @JsonProperty("__approval")
     private Approval approval;
 
-    @Field("Modified_Time")
+    @JsonProperty("Modified_Time")
     private LocalDateTime modifiedTime;
 
-    @Field("Sub_Area")
+    @JsonProperty("Sub_Area")
     private String subArea;
 
-    @Field("Created_Time")
+    @JsonProperty("Created_Time")
     private LocalDateTime createdTime;
 
-    @Field("__followed")
+    @JsonProperty("__followed")
     private boolean followed;
 
-    @Field("Product_Name")
+    @JsonProperty("Product_Name")
     private String productName;
 
-    @Field("Bank_Approved")
+    @JsonProperty("Bank_Approved")
     private List<String> bankApproved;
 
-    @Field("__taxable")
+    @JsonProperty("__taxable")
     private boolean taxable;
 
-    @Field("__editable")
+    @JsonProperty("__editable")
     private boolean editable;
 
-    @Field("Property_Type")
+    @JsonProperty("Property_Type")
     private List<String> propertyType;
 
-    @Field("City")
+    @JsonProperty("City")
     private String city;
 
-    @Field("Builder_Name")
+    @JsonProperty("Builder_Name")
     private String builderName;
 
-    @Field("Owner_Details")
+    @JsonProperty("Owner_Details")
     private Object ownerDetails;
 
-    @Field("__orchestration")
+    @JsonProperty("__orchestration")
     private Object orchestration;
 
-    @Field("Property_ID")
+    @JsonProperty("Property_ID")
     private String propertyID;
 
-    @Field("Price_Range")
+    @JsonProperty("Price_Range")
     private String priceRange;
 
-    @Field("Area")
+    @JsonProperty("Area")
     private String area;
 
-    @Field("__in_merge")
+    @JsonProperty("__in_merge")
     private boolean inMerge;
 
-    @Field("State")
+    @JsonProperty("State")
     private Object countryState;
 
-    @Field("Property_Referred_By")
+    @JsonProperty("Property_Referred_By")
     private Object propertyReferredBy;
 
-    @Field("Country")
+    @JsonProperty("Country")
     private Object country;
 
-    @Field("Tag")
+    @JsonProperty("Tag")
     private List<Object> tag;
 
-    @Field("__approval_state")
+    @JsonProperty("__approval_state")
     private String approvalState;
 
-    @Field("Sales_End_Date")
+    @JsonProperty("Sales_End_Date")
     private String salesEndDate;
 
-    @Field("Unit_Price")
+    @JsonProperty("Unit_Price")
     private int unitPrice;
 
-    @Field("Taxable")
+    @JsonProperty("Taxable")
     private boolean propertyTaxable;
 
-    @Field("PID")
+    @JsonProperty("PID")
     private String pID;
 
     private FloorPlan floorPlan;

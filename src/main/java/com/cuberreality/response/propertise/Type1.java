@@ -1,5 +1,6 @@
 package com.cuberreality.response.propertise;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -7,12 +8,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class Type1 {
     private String price;
     private String superBuiltUpArea;
-    @Field("UDS")
+    @JsonProperty("UDS")
     private String uDS;
-    @Field("CarpetArea")
+    @JsonProperty("CarpetArea")
     private String carpetArea;
     private String plotSize;
     private String plotAreaSqft;
-    @Field("Available")
+    @JsonProperty("Available")
     private String available;
 }
