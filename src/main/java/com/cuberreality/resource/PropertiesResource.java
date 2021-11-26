@@ -2,6 +2,7 @@ package com.cuberreality.resource;
 
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
 import com.cuberreality.response.BaseResponse;
+import com.cuberreality.response.propertise.PropertiesSearchResponse;
 import com.cuberreality.service.PropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,20 +19,15 @@ public class PropertiesResource {
 
 
     @RequestMapping(value = "/search/properties", method = RequestMethod.POST)
-    public ResponseEntity<?> getPropertiesInSpace(@RequestBody  PropertiesSearchRequest propertiesSearchRequest) {
+    public ResponseEntity<?> getPropertiesInSpace(@RequestBody PropertiesSearchRequest propertiesSearchRequest) {
         PropertiesSearchRequest propertiesSearchRequest1 = new PropertiesSearchRequest();
-        propertiesSearchRequest1.setCity("Bangalore");
-        propertiesSearchRequest1.setCountry("no_data");
-        propertiesSearchRequest1.setState("no_data");
-        propertiesSearchRequest1.setSubArea("Sarjapur_Road");
-        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertiesInSpace(propertiesSearchRequest1), ""), HttpStatus.OK);
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertiesInSpace(propertiesSearchRequest), ""), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/property/{referred_by_id}/{property_id}", method = RequestMethod.GET)
     public ResponseEntity<?> getProperty(@PathVariable String property_id, @PathVariable String referred_by_id) {
         return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertyByCustomer(property_id, referred_by_id), ""), HttpStatus.OK);
     }
-
 
 
     @RequestMapping(value = "/property/{property_id}", method = RequestMethod.GET)

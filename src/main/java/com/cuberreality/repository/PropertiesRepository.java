@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface PropertiesRepository extends MongoRepository<PropertiesSchema, String> {
 
+       Optional<PropertiesSchema> findByIdAndProductActive(String id, boolean active);
+
        Optional<PropertiesSchema> findById(String id);
 
 }

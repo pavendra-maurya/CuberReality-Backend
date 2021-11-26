@@ -10,6 +10,7 @@ import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
 import com.cuberreality.repository.VisitedPropertiesRepository;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
+import com.cuberreality.response.propertise.PropertiesSearchDetails;
 import com.cuberreality.response.propertise.PropertiesSearchResponse;
 import com.cuberreality.service.PropertiesService;
 import com.cuberreality.util.ApiClient;
@@ -38,22 +39,34 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Autowired
     private PropertiesMapper propertiesMapper;
 
+    public PropertiesServiceImpl() {
+    }
+
     @Override
-    public List<PropertiesSearchResponse> getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
+    public PropertiesSearchResponse getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
+
 
         List<SearchSchema> searchSchemas = searchRepository.findAll();
 
-        List<String> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
+        PropertiesSearchResponse response = new PropertiesSearchResponse();
 
-        List<PropertiesSearchResponse> propertiesSearchResponseList = new ArrayList<>();
+        List<String> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
+        List<PropertiesSearchDetails> regularPropertiesSearch = new ArrayList<>();
+        List<PropertiesSearchDetails> focusedPropertiesSearch = new ArrayList<>();
         for (String id : propertyIdList) {
 
-            Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(id);
-
-            propertiesSchema.ifPresent(schema -> propertiesSearchResponseList.add(propertiesMapper.toPropertiesResponse(schema)));
-
+            Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
+            if(propertiesSchema.isPresent()){
+                PropertiesSchema  schema = propertiesSchema.get();
+                if (schema.isPropertyTaxable())
+                    focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                else
+                    regularPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+            }
         }
-        return propertiesSearchResponseList;
+        response.setFocusedProperties(focusedPropertiesSearch);
+        response.setRegularProperties(regularPropertiesSearch);
+        return response;
     }
 
     private List<String> getPropertyIds(List<SearchSchema> searchSchema, PropertiesSearchRequest propertiesSearchRequest) {
@@ -108,7 +121,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     @Override
-    public PropertiesSearchResponse getPropertyByCustomer(String property_id, String referred_by_id) {
+    public PropertiesSearchDetails getPropertyByCustomer(String property_id, String referred_by_id) {
 
         Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
 
@@ -135,7 +148,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     @Override
-    public PropertiesSearchResponse getPropertyById(String property_id) {
+    public PropertiesSearchDetails getPropertyById(String property_id) {
         Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
 
         if (propertiesSchema.isPresent())
