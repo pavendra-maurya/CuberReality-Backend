@@ -1,5 +1,6 @@
 package com.cuberreality.service;
 
+import com.cuberreality.request.CreateUserProfileRequest;
 import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
@@ -10,7 +11,7 @@ public interface UserProfileService {
 
     UserDetailsApiResponse getUserDetails(String user_id);
 
-    String createUserProfile(CreateUserRequest createUserRequest) throws Exception;
+    String createUserProfile(CreateUserProfileRequest createUserProfileRequest) throws Exception;
 
     Object updateUserDetails(UpdateUserRequest updateUserRequest);
 

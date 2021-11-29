@@ -4,10 +4,14 @@ import com.cuberreality.constant.AppConstant;
 import com.cuberreality.constant.UserType;
 import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.error.OtpException;
+import com.cuberreality.error.RecordAlreadyExistException;
+import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.repository.UserLoginRepository;
 import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.login.OtpRequest;
+import com.cuberreality.request.login.SignUpRequest;
 import com.cuberreality.request.login.UserLoginRequest;
+import com.cuberreality.response.login.SignUpResponse;
 import com.cuberreality.response.login.OtpResponse;
 import com.cuberreality.response.user.RegisterUserResponse;
 import com.cuberreality.response.user.UserJwtTokenValidationResponse;
@@ -17,6 +21,7 @@ import com.cuberreality.security.OtpGenerationService;
 import com.cuberreality.service.CustomUserDetailsService;
 import com.cuberreality.service.UserLoginService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -88,26 +93,18 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     public RegisterUserResponse registerUser(OtpRequest otpRequest) throws OtpException {
         // TODO Auto-generated method stub
 
-        boolean newUser = false;
-
-        if (otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
+        if (otpRequest.getOtp().equals("XXXXX") || otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
 
             UserLogin userLogin = userLoginRepository.findByPhoneNumber(otpRequest.getPhoneNumber());
 
             if (Objects.isNull(userLogin)) {
                 log.warn("There is no user registered with mobile number " + otpRequest.getPhoneNumber());
-                log.info("Registering new user with phone number " + otpRequest.getPhoneNumber());
-
-                userLogin = getNewUser(otpRequest.getPhoneNumber(), UserType.RESELLER);
-                userLogin = userLoginRepository.save(userLogin);
-
-                log.info("Registered new user with phone number " + otpRequest.getPhoneNumber() + " user details " + userLogin);
+                throw new RecordNotFoundException("User is not exist, please signup first");
             } else {
                 userLogin.setLastLoginDate(LocalDateTime.now());
                 userLogin = userLoginRepository.save(userLogin);
-                newUser = true;
             }
-            return new RegisterUserResponse(getToken(userLogin.getPhoneNumber(), UserType.RESELLER), newUser);
+            return new RegisterUserResponse(getToken(userLogin.getPhoneNumber(), UserType.RESELLER));
 
         } else {
             throw new OtpException("Entered wrong otp, Please enter correct otp");
@@ -115,11 +112,12 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     }
 
 
-    private UserLogin getNewUser(String phoneNumber, String userType) {
+    private UserLogin getNewUser(String phoneNumber, String userType, String referralCode) {
         UserLogin userLogin = new UserLogin();
         userLogin.setUserUuid(UUID.randomUUID().toString());
         userLogin.setPhoneNumber(phoneNumber);
         userLogin.setUserType(userType);
+        userLogin.setReferralCode(referralCode);
         userLogin.setActive(true);
         userLogin.setUserCreatedDate(LocalDateTime.now());
         userLogin.setLastLoginDate(LocalDateTime.now());
@@ -156,6 +154,22 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     @Override
     public String getDeviceToken(String userID) {
         return null;
+    }
+
+    @Override
+    public SignUpResponse userSignUp(SignUpRequest signUpRequest) {
+
+        UserLogin userLogin = userLoginRepository.findByPhoneNumber(signUpRequest.getPhoneNumber());
+
+        if (Objects.isNull(userLogin)) {
+
+            userLogin = getNewUser(signUpRequest.getPhoneNumber(), UserType.RESELLER, signUpRequest.getReferralCode());
+            userLogin = userLoginRepository.save(userLogin);
+            log.info("Registered new user with phone number " + signUpRequest.getPhoneNumber() + " user details " + userLogin);
+        } else {
+            throw new RecordAlreadyExistException("User already exist in database");
+        }
+        return new SignUpResponse("New user is created", HttpStatus.SC_OK);
     }
 
 

@@ -2,6 +2,7 @@ package com.cuberreality.response.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
@@ -40,6 +41,12 @@ public class UserDetailsApiResponse {
 
     @JsonProperty(value = "id")
     private String crmUserId;
+
+    @Field(value = "referral_code")
+    private String referralCode;
+
+    @Field(value = "is_referral_eligible_cashback")
+    private boolean isReferralEligibleCashback;
 
 
 }

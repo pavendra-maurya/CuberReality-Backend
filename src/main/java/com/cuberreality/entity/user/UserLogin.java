@@ -18,7 +18,7 @@ public class UserLogin {
     private String phoneNumber;
 
     @Field(value = "user_uuid")
-    private String userUuid ;
+    private String userUuid;
 
     @Field(value = "active")
     private Boolean active;
@@ -29,12 +29,15 @@ public class UserLogin {
     @Field(value = "user_type")
     private String userType;
 
+    @Field(value = "referral_code")
+    private String referralCode;
+
     @Field(value = "user_created_date")
-    private LocalDateTime userCreatedDate ;
+    private LocalDateTime userCreatedDate;
 
     @Field(value = "user_updated_date")
-    private LocalDateTime userUpdatedDate ;
+    private LocalDateTime userUpdatedDate;
 
     @Field(value = "last_login_date")
-    private LocalDateTime lastLoginDate ;
+    private LocalDateTime lastLoginDate;
 }

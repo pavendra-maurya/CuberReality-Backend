@@ -20,14 +20,8 @@ public class CreateUserRequest {
     @JsonProperty("Reseller_Is")
     public List<String> resellerIs;
 
-    @JsonProperty("Wallet")
-    public int wallet;
-
     @JsonProperty("Mobile")
     public String mobile;
-
-    @JsonProperty("Total_Earned")
-    public int totalEarned;
 
     @JsonProperty("User_Status")
     public String userStatus;

@@ -1,5 +1,6 @@
 package com.cuberreality.resource;
 
+import com.cuberreality.request.CreateUserProfileRequest;
 import com.cuberreality.request.DeviceTokenRequest;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
@@ -24,8 +25,8 @@ public class UserProfileResource {
     }
 
     @RequestMapping(value = "/user-profile", method = RequestMethod.POST)
-    public ResponseEntity<?> createUserProfile(@RequestBody CreateUserRequest createUserRequest) throws Exception {
-        return new ResponseEntity<>(new BaseResponse<>(userProfileService.createUserProfile(createUserRequest), ""), HttpStatus.OK);
+    public ResponseEntity<?> createUserProfile(@RequestBody CreateUserProfileRequest createUserProfileRequest) throws Exception {
+        return new ResponseEntity<>(new BaseResponse<>(userProfileService.createUserProfile(createUserProfileRequest), ""), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user-profile", method = RequestMethod.PUT)

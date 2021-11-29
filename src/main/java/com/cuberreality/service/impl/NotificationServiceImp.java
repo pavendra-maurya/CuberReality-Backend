@@ -7,8 +7,7 @@ import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -47,21 +46,18 @@ public class NotificationServiceImp implements NotificationService {
 
     }
 
+
+    @SuppressWarnings("unchecked")
     private String newPropertyAdded(String deviceToken) {
         JSONObject payload = new JSONObject();
         JSONObject dataPayload = new JSONObject();
-        try {
-            dataPayload.put("type", "New property");
-            dataPayload.put("title", "New Hot deals");
-            dataPayload.put("msg", "New property has been added please share with customer");
-            dataPayload.put("status", "New ");
-            dataPayload.put("priority", "");
-            payload.put("to", deviceToken);
-            payload.put("data", dataPayload);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        dataPayload.put("type", "New property");
+        dataPayload.put("title", "New Hot deals");
+        dataPayload.put("msg", "New property has been added please share with customer");
+        dataPayload.put("status", "New ");
+        dataPayload.put("priority", "");
+        payload.put("to", deviceToken);
+        payload.put("data", dataPayload);
         return payload.toString();
     }
 
@@ -93,9 +89,9 @@ public class NotificationServiceImp implements NotificationService {
 
         Twilio.init(appConfig.getAccount_sid(), appConfig.getAuth_token());
         Message message = Message.creator(
-                        new com.twilio.type.PhoneNumber("whatsapp:"+PhoneNum),
-                        new com.twilio.type.PhoneNumber("whatsapp:"+appConfig.getRegister_phone_number()),
-                        msg )
+                        new com.twilio.type.PhoneNumber("whatsapp:" + PhoneNum),
+                        new com.twilio.type.PhoneNumber("whatsapp:" + appConfig.getRegister_phone_number()),
+                        msg)
                 .create();
         System.out.println(message.getSid());
     }

@@ -13,4 +13,6 @@ public interface UserProfileRepository extends MongoRepository<UserProfilesSchem
 
        Optional<UserProfilesSchema> findByUserUuid(String uuid);
 
+       Optional<UserProfilesSchema> findByCrmUserId(String uuid);
+
 }

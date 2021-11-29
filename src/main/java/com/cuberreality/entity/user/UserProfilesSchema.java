@@ -47,6 +47,12 @@ public class UserProfilesSchema {
     @Field(value = "id")
     private String crmUserId;
 
+    @Field(value = "referral_code")
+    private String referralCode;
+
+    @Field(value = "is_referral_eligible_cashback")
+    private boolean isReferralEligibleCashback;
+
 
 }
 

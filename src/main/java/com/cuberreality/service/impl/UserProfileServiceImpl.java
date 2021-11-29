@@ -1,9 +1,12 @@
 package com.cuberreality.service.impl;
 
+import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.mapper.UserMapper;
+import com.cuberreality.repository.UserLoginRepository;
 import com.cuberreality.repository.UserProfileRepository;
+import com.cuberreality.request.CreateUserProfileRequest;
 import com.cuberreality.request.user.CreateApiRequest;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
@@ -14,6 +17,8 @@ import com.cuberreality.util.ApiClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -30,6 +35,9 @@ public class UserProfileServiceImpl implements UserProfileService {
     private UserProfileRepository userProfileRepository;
 
     @Autowired
+    private UserLoginRepository userLoginRepository;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Override
@@ -44,23 +52,40 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public String createUserProfile(CreateUserRequest createUserRequest) throws Exception {
+    public String createUserProfile(CreateUserProfileRequest createUserProfileRequest) throws Exception {
 
-        String user_uuid = " ";
-//        UserJwtTokenValidationResponse jwtTokenValidationResponse = userLoginService.userJwtTokenValidation();
-//        user_uuid = jwtTokenValidationResponse.getUuid();
+        UserJwtTokenValidationResponse jwtTokenValidationResponse = userLoginService.userJwtTokenValidation();
+        String mobileNumber = jwtTokenValidationResponse.getPhone();
+        String userUuid = jwtTokenValidationResponse.getUuid();
 
+        UserLogin userLogin = userLoginRepository.findByPhoneNumber(mobileNumber);
+        String referralCode = userLogin.getReferralCode();
+        String userType = userLogin.getUserType();
+
+        CreateUserRequest createUserRequest = userMapper.toCreateUserRequest(createUserProfileRequest);
         CreateApiRequest<CreateUserRequest> request = new CreateApiRequest<>();
+        createUserRequest.setUserType(Collections.singletonList(userType));
+        createUserRequest.setUserStatus("Active");
+        createUserRequest.setMobile(mobileNumber);
+
         request.setCreateRequest(Collections.singletonList(createUserRequest));
+
+        // Create User details in CRM
 
         String path = "/bigin/v1/Contacts";
         CreateUserApiResponse createUserApiResponse = apiClient.post(request, CreateUserApiResponse.class, path);
         String id = createUserApiResponse.getData().get(0).getDetails().getId();
 
+        // Get user details in from CRM
         String pathWithId = path + "/" + id;
         FetchUserApiResponse fetchUserApiResponse = apiClient.get(FetchUserApiResponse.class, pathWithId);
         UserDetailsApiResponse userDetailsApiResponse = fetchUserApiResponse.getData().get(0);
-        userDetailsApiResponse.setUserUuid(user_uuid);
+
+        userDetailsApiResponse.setUserUuid(userUuid);
+        userDetailsApiResponse.setReferralCode(referralCode);
+        userDetailsApiResponse.setReferralEligibleCashback(true);
+
+        // Save user details in local database;
         userProfileRepository.save(userMapper.toUserProfileSchema(userDetailsApiResponse));
 
         return "Successfully Created";
