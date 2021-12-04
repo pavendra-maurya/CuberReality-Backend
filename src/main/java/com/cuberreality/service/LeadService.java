@@ -1,19 +1,25 @@
 package com.cuberreality.service;
 
-import com.cuberreality.request.leads.CreateLeadRequest;
-import com.cuberreality.request.leads.UpdateLeadRequest;
+import com.cuberreality.request.leads.*;
 import com.cuberreality.response.leads.CreateLeadResponse;
-import com.cuberreality.response.leads.LeadResponse;
+import com.cuberreality.response.leads.CreateLeadResponseModel;
+import com.cuberreality.response.leads.GetLeadResponseModel;
+import com.cuberreality.response.leads.UpdateLeadResponse;
 
 import java.util.List;
 
 public interface LeadService {
 
-    CreateLeadResponse createLead(CreateLeadRequest createLeadRequest) throws Exception;
+    CreateLeadResponseModel createLead(CreateLeadModel createLeadRequest) throws Exception;
 
-    LeadResponse getLead(String id);
+    GetLeadResponseModel getLead(String id) throws Exception;
 
-    List<LeadResponse> getLeads();
+    List<GetLeadResponseModel> getLeads() throws Exception;
 
-    List<LeadResponse> updateLead(UpdateLeadRequest updateLeadRequest);
+    List<GetLeadResponseModel> searchLeads(SearchLeadRequest searchLeadRequest) throws Exception;
+    int findLeadsCountByReseller(String id) throws Exception;
+
+    List<GetLeadResponseModel> findLeadsByReseller(String id) throws Exception;
+
+    UpdateLeadResponse updateLead(UpdateLeadModel updateLeadRequest, String leadId) throws Exception;
 }

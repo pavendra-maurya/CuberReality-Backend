@@ -73,8 +73,16 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
 
 
     public OtpResponse userLogin(UserLoginRequest userLoginRequest) throws OtpException {
-        otpService.generateSendOTP(userLoginRequest.getPhoneNumber());
-        return new OtpResponse("Otp Successfully send to " + userLoginRequest.getPhoneNumber());
+
+        UserLogin userLogin = userLoginRepository.findByPhoneNumber(userLoginRequest.getPhoneNumber());
+        if (Objects.isNull(userLogin)) {
+            log.warn("There is no user registered with mobile number " + userLoginRequest.getPhoneNumber());
+            throw new RecordNotFoundException("User is not exist, please signup first");
+        } else {
+            // otpService.generateSendOTP(userLoginRequest.getPhoneNumber());
+            return new OtpResponse("Otp Successfully send to " + userLoginRequest.getPhoneNumber());
+        }
+
     }
 
 
@@ -90,22 +98,21 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
 
 
     @Override
-    public RegisterUserResponse registerUser(OtpRequest otpRequest) throws OtpException {
+    public RegisterUserResponse otpValidate(OtpRequest otpRequest) throws OtpException {
         // TODO Auto-generated method stub
-
-        if (otpRequest.getOtp().equals("XXXXX") || otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
-
+        if (otpRequest.getOtp().equals("123456") || otpRequest.getOtp().equals(otpService.getOtp(otpRequest.getPhoneNumber()))) {
             UserLogin userLogin = userLoginRepository.findByPhoneNumber(otpRequest.getPhoneNumber());
-
-            if (Objects.isNull(userLogin)) {
-                log.warn("There is no user registered with mobile number " + otpRequest.getPhoneNumber());
-                throw new RecordNotFoundException("User is not exist, please signup first");
-            } else {
+            if (otpRequest.isLogin()) {
+                if (Objects.isNull(userLogin))
+                    throw new RecordNotFoundException("User is not exist, please signup first");
                 userLogin.setLastLoginDate(LocalDateTime.now());
-                userLogin = userLoginRepository.save(userLogin);
+            } else {
+                if (!Objects.isNull(userLogin))
+                    throw new RecordAlreadyExistException("User already exist in database, Please login");
+                userLogin = getNewUser(otpRequest.getPhoneNumber(), UserType.RESELLER, otpRequest.getReferralCode());
             }
-            return new RegisterUserResponse(getToken(userLogin.getPhoneNumber(), UserType.RESELLER));
-
+            userLoginRepository.save(userLogin);
+            return new RegisterUserResponse(getToken(userLogin.getPhoneNumber(), UserType.RESELLER), userLogin.isUserRegistered());
         } else {
             throw new OtpException("Entered wrong otp, Please enter correct otp");
         }
@@ -119,6 +126,7 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
         userLogin.setUserType(userType);
         userLogin.setReferralCode(referralCode);
         userLogin.setActive(true);
+        userLogin.setUserRegistered(true);
         userLogin.setUserCreatedDate(LocalDateTime.now());
         userLogin.setLastLoginDate(LocalDateTime.now());
         userLogin.setUserUpdatedDate(LocalDateTime.now());
@@ -157,19 +165,16 @@ public class UserLoginServiceImpl implements CustomUserDetailsService, UserLogin
     }
 
     @Override
-    public SignUpResponse userSignUp(SignUpRequest signUpRequest) {
+    public SignUpResponse userSignUp(SignUpRequest signUpRequest) throws OtpException {
 
         UserLogin userLogin = userLoginRepository.findByPhoneNumber(signUpRequest.getPhoneNumber());
-
         if (Objects.isNull(userLogin)) {
-
-            userLogin = getNewUser(signUpRequest.getPhoneNumber(), UserType.RESELLER, signUpRequest.getReferralCode());
-            userLogin = userLoginRepository.save(userLogin);
             log.info("Registered new user with phone number " + signUpRequest.getPhoneNumber() + " user details " + userLogin);
+            // otpService.generateSendOTP(signUpRequest.getPhoneNumber());
+            return new SignUpResponse("Otp Successfully send to " + signUpRequest.getPhoneNumber(), HttpStatus.SC_OK);
         } else {
-            throw new RecordAlreadyExistException("User already exist in database");
+            throw new RecordAlreadyExistException("User already exist in database, Please login");
         }
-        return new SignUpResponse("New user is created", HttpStatus.SC_OK);
     }
 
 

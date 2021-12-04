@@ -16,7 +16,7 @@ public interface UserLoginService {
 
      OtpResponse userLogin(UserLoginRequest userLoginRequest) throws OtpException;
 
-     RegisterUserResponse registerUser(OtpRequest otpRequest) throws OtpException;
+     RegisterUserResponse otpValidate(OtpRequest otpRequest) throws OtpException;
 
      UserJwtTokenValidationResponse userJwtTokenValidation();
 
@@ -24,5 +24,5 @@ public interface UserLoginService {
 
     String getDeviceToken(String userID);
 
-    SignUpResponse userSignUp(SignUpRequest signUpRequest);
+    SignUpResponse userSignUp(SignUpRequest signUpRequest) throws OtpException;
 }

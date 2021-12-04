@@ -38,7 +38,7 @@ public class LoginResource {
 
     @RequestMapping(value = "/otp/validation", method = RequestMethod.POST)
     public ResponseEntity<?> registerUser(@Valid @RequestBody OtpRequest otpRequest) throws OtpException {
-        return new ResponseEntity<>(new BaseResponse<>(userLoginService.registerUser(otpRequest), ""), HttpStatus.OK);
+        return new ResponseEntity<>(new BaseResponse<>(userLoginService.otpValidate(otpRequest), ""), HttpStatus.OK);
     }
 
 //    @RequestMapping(value = "/user/jwt/validation", method = RequestMethod.GET)

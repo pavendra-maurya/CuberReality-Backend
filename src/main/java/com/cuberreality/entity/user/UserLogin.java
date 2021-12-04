@@ -32,6 +32,9 @@ public class UserLogin {
     @Field(value = "referral_code")
     private String referralCode;
 
+    @Field(value = "user_registered")
+    private boolean userRegistered;
+
     @Field(value = "user_created_date")
     private LocalDateTime userCreatedDate;
 

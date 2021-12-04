@@ -1,6 +1,5 @@
 package com.cuberreality.response.leads;
 
-import com.cuberreality.response.leads.CreatedBy;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -9,12 +8,12 @@ import java.util.Date;
 @Data
  public class Details{
     @JsonProperty("Modified_Time")
-    public Date modified_Time;
-    @JsonProperty("Modified_By") 
-    public CreatedBy modified_By;
-    @JsonProperty("Created_Time") 
-    public Date created_Time;
-    public String id;
-    @JsonProperty("Created_By") 
-    public CreatedBy created_By;
+    private Date modified_Time;
+    @JsonProperty("Modified_By")
+    private CreatedBy modified_By;
+    @JsonProperty("Created_Time")
+    private Date created_Time;
+   private String id;
+    @JsonProperty("Created_By")
+    private CreatedBy created_By;
 }

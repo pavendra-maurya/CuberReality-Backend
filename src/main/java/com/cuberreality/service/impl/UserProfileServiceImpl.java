@@ -88,6 +88,9 @@ public class UserProfileServiceImpl implements UserProfileService {
         // Save user details in local database;
         userProfileRepository.save(userMapper.toUserProfileSchema(userDetailsApiResponse));
 
+        userLogin.setUserRegistered(false);
+        userLoginRepository.save(userLogin);
+
         return "Successfully Created";
 
     }

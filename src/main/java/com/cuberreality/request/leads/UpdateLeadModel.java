@@ -1,10 +1,11 @@
 package com.cuberreality.request.leads;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class CreateLeadModel {
+public class UpdateLeadModel {
 
     @JsonProperty("Buyer_ID")
     private String Buyer_ID;
@@ -21,6 +22,7 @@ public class CreateLeadModel {
 
     @JsonProperty("Reseller_Loan_Agent")
     private boolean Reseller_Loan_Agent;
+
 
     @JsonProperty("Reseller_ID")
     private String Reseller_ID;
@@ -42,6 +44,4 @@ public class CreateLeadModel {
     private String $approval_state;
     @JsonProperty("Property_Name")
     private String Property_Name;
-
-
 }

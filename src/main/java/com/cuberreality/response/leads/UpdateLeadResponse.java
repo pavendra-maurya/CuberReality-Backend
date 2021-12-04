@@ -4,7 +4,10 @@ import lombok.Data;
 
 import java.util.List;
 
+
 @Data
-public class CreateLeadResponse{
-    private List<CreateLeadResponseModel> data;
+public class UpdateLeadResponse {
+
+    private List<UpdateLeadResponseModel> data;
+
 }

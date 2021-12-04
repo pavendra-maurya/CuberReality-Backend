@@ -12,7 +12,4 @@ public class SignUpRequest {
     @JsonProperty("mobile_number")
     private String phoneNumber;
 
-    @JsonProperty("referral_code")
-    private String referralCode;
-
 }

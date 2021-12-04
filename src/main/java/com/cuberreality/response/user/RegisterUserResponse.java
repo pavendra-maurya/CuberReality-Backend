@@ -11,4 +11,8 @@ public class RegisterUserResponse {
     @JsonProperty("token")
     private String token;
 
+
+    @JsonProperty("new_user")
+    private boolean newUser;
+
 }
