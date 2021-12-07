@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -55,9 +56,9 @@ public class LeadsSchema {
     @Field("__approval")
     public com.cuberreality.response.leads.Approval approval;
     @Field("Modified_Time")
-    public Date modified_Time;
+    public LocalDateTime modified_Time;
     @Field("Created_Time")
-    public Date created_Time;
+    public LocalDateTime created_Time;
     @Field("Reseller_Name")
     public String reseller_Name;
     @Field("Reseller_Loan_Agent")

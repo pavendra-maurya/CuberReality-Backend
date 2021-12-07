@@ -140,7 +140,6 @@ public class LeadServiceImpl implements LeadService {
 
         List<LeadsSchema> leadsSchemas = leadsRepository.findByReseller_ID(resellerId);
         List<GetLeadResponseModel> getLeadResponseModels = leadsMapper.leadSchemasToLeads(leadsSchemas);
-
         return getLeadResponseModels;
 
 

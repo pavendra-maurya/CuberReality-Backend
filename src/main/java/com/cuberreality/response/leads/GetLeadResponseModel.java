@@ -4,6 +4,7 @@ package com.cuberreality.response.leads;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -49,9 +50,9 @@ public class GetLeadResponseModel {
     @JsonProperty("__approval")
     private Approval approval;
     @JsonProperty("Modified_Time")
-    private Date modified_Time;
+    private LocalDateTime modified_Time;
     @JsonProperty("Created_Time")
-    private Date created_Time;
+    private LocalDateTime created_Time;
     @JsonProperty("Reseller_Name")
     private String reseller_Name;
     @JsonProperty("Reseller_Loan_Agent")
