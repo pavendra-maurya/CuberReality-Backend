@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class ImageUrl {
-    @Field("focused_img_url")
+    @Field("focusedImg_url")
     private List<String> focusedImgUrl;
 
     @Field("broucher_url")

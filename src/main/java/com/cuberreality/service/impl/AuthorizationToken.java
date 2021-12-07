@@ -13,6 +13,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+
 
 @Component
 @Slf4j
@@ -24,25 +29,25 @@ public class AuthorizationToken {
     @Autowired
     private RestTemplate restTemplate;
 
-    public String authorizationToken = "1000.bf720b26ae5040889cc415ccd87b1b7f.699136f6e3202b583702fc87b08b7a57";
+    public String authorizationToken;
 
-    //    @Scheduled(fixedRate = 20000)
+    private static LocalDateTime lastGeneratedTime;
+
     public void crmRefreshAuthorizationToken() {
-
         String url = appConfig.getCrm_auth_base_url() + "/oauth/v2/token";
-
         HttpEntity<MultiValueMap<String, Object>> entity = getHeaderEntity();
 
         log.info("Generating authorization token using " + entity.toString());
         ResponseEntity<RefreshTokenResponse> response = restTemplate.postForEntity(url, entity, RefreshTokenResponse.class);
 
-        log.debug(response.getBody().toString());
+        log.debug(Objects.requireNonNull(response.getBody()).toString());
 
         RefreshTokenResponse refreshTokenResponse = response.getBody();
 
-        if (refreshTokenResponse.getError().length() < 1) {
-            log.info("Authorization key generated successfully ");
+        if (refreshTokenResponse.getError()==null) {
+            log.info("Authorization key generated successfully " + refreshTokenResponse.getAccessToken());
             this.authorizationToken = refreshTokenResponse.getAccessToken();
+            lastGeneratedTime = LocalDateTime.now();
         } else {
             log.error(refreshTokenResponse.getError());
         }
@@ -62,11 +67,10 @@ public class AuthorizationToken {
 
     public String getAuthorizationToken() {
 
-        if (this.authorizationToken == null) {
+        if (this.authorizationToken == null || (int) ChronoUnit.MINUTES.between(LocalDateTime.now(), lastGeneratedTime) > 55) {
             crmRefreshAuthorizationToken();
             return this.authorizationToken;
         }
-
-        return appConfig.getBearer_token();//this.authorizationToken;
+        return this.authorizationToken;
     }
 }
