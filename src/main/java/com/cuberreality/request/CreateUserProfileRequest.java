@@ -9,7 +9,10 @@ import java.util.List;
 public class CreateUserProfileRequest {
 
     @JsonProperty("Email")
-    public Object email;
+    public String email;
+
+    @JsonProperty("name")
+    public String firstName;
 
     @JsonProperty("Reseller_Is")
     public List<String> resellerIs;         // is loan agent, bank manager, builder

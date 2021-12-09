@@ -14,7 +14,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -44,7 +43,7 @@ public class AuthorizationToken {
 
         RefreshTokenResponse refreshTokenResponse = response.getBody();
 
-        if (refreshTokenResponse.getError()==null) {
+        if (refreshTokenResponse.getError() == null) {
             log.info("Authorization key generated successfully " + refreshTokenResponse.getAccessToken());
             this.authorizationToken = refreshTokenResponse.getAccessToken();
             lastGeneratedTime = LocalDateTime.now();
@@ -66,8 +65,11 @@ public class AuthorizationToken {
     }
 
     public String getAuthorizationToken() {
-
-        if (this.authorizationToken == null || (int) ChronoUnit.MINUTES.between(LocalDateTime.now(), lastGeneratedTime) > 55) {
+        if (lastGeneratedTime == null)
+            lastGeneratedTime = LocalDateTime.now();
+        int diffTme = (int) ChronoUnit.MINUTES.between(lastGeneratedTime, LocalDateTime.now());
+        System.out.println("Last Token generated before " + Math.abs(diffTme) + " minutes");
+        if (this.authorizationToken == null || Math.abs(diffTme) > 55) {
             crmRefreshAuthorizationToken();
             return this.authorizationToken;
         }

@@ -8,7 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.math.BigInteger;
 import java.util.List;
 
-@Document("Search")
+import static com.cuberreality.constant.Schema.SEARCH_SCHEMA;
+
+@Document(SEARCH_SCHEMA)
 @Data
 public class SearchSchema{
 

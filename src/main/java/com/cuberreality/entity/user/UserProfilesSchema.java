@@ -6,8 +6,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
+import static com.cuberreality.constant.Schema.USER_PROFILE_SCHEMA;
 
-@Document("UserProfile")
+
+@Document(USER_PROFILE_SCHEMA)
 @Data
 public class UserProfilesSchema {
 

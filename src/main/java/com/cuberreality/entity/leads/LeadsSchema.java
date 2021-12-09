@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-import static com.cuberreality.constant.Schema.LEAD_SCHEMA;
+import static com.cuberreality.constant.Schema.LEADS_SCHEMA;
 
-@Document(LEAD_SCHEMA)
+@Document(LEADS_SCHEMA)
 @Data
 public class LeadsSchema {
     @Field("_id")

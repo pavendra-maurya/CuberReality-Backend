@@ -7,7 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
-@Document("UserLogin")
+import static com.cuberreality.constant.Schema.USER_LOGIN;
+
+@Document(USER_LOGIN)
 @Data
 public class UserLogin {
 

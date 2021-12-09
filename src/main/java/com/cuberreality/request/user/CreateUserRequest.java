@@ -9,7 +9,7 @@ import java.util.List;
 public class CreateUserRequest {
 
     @JsonProperty("Email")
-    public Object email;
+    public String email;
 
     @JsonProperty("User_Type")
     public List<String> userType;

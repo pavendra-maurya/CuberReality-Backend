@@ -2,6 +2,18 @@ import json
 import requests
 import pymongo
 import re
+import platform
+from flask import Flask
+
+from subprocess import Popen, PIPE
+import os
+
+CONFIG_REPO_NAME = "cuberreality-config"
+PROPERTIES_SCHEMA = "PropertiesSchema"
+LEADS_SCHEMA = "LeadsSchema"
+USER_PROFILE_SCHEMA = "UserProfilesSchema"
+OCCUPATIONS_SCHEMA = "OccupationsSchema"
+SEARCH_SCHEMA = "SearchSchema"
 
 config_data = {}
 
@@ -33,7 +45,10 @@ def refresh_token():
         'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
     }
 
-    execute_api(config_data.get("crm_account_url") + config_data.get("refresh_token_path"), "POST", payload, headers)
+    output = execute_api(config_data.get("crm_account_url") + config_data.get("refresh_token_path"), "POST", payload,
+                         headers)
+    if (output.get("access_token") is not None):
+        config_data["token"] = output.get("access_token")
 
 
 def get_mongo_client(collection_name='Properties'):
@@ -63,12 +78,12 @@ def execute_api(url, method, payload=None, headers=None):
             exit(1)
 
     if method.lower() == "post":
-        print(requests.request("POST", url, data=payload, headers=headers).text)
+        return requests.request("POST", url, data=payload, headers=headers).json()
 
 
 def sync_properties_data_from_crm_to_db():
     properties = execute_api(config_data.get("crm_property_path"), "GET")
-    collection = get_mongo_client("Properties")
+    collection = get_mongo_client(PROPERTIES_SCHEMA)
     for property in properties:
         value = property["id"]
         update = collection.replace_one({"id": value}, property, upsert=True)
@@ -77,16 +92,28 @@ def sync_properties_data_from_crm_to_db():
 
 def sync_leads_data_from_crm_to_db():
     properties = execute_api(config_data.get("crm_leads_path"), "GET")
-    collection = get_mongo_client("Leads")
+    collection = get_mongo_client(LEADS_SCHEMA)
     for property in properties:
         value = property["id"]
         update = collection.replace_one({"id": value}, property, upsert=True)
         print(update.raw_result)
 
 
+def sync_occupations_data():
+    occupations_data = {
+        "resellersOccupation": ["Loan Agent", "Insurance Agent", "Homemaker", "Home Loan Agent",
+                                "Mutual Fund Agent", "Financial Advisors", "Chartered accountant", "Architect",
+                                "Interior Designer", "Civil Contractor / Engineer"]
+    }
+    collection1 = get_mongo_client(OCCUPATIONS_SCHEMA)
+    collection1.drop()
+    collection1 = get_mongo_client(OCCUPATIONS_SCHEMA)
+    collection1.insert_one(occupations_data)
+
+
 def sync_user_profile_data_from_crm_to_db():
     properties = execute_api(config_data.get("crm_user_profile_path"), "GET")
-    collection = get_mongo_client("UserProfiles")
+    collection = get_mongo_client(USER_PROFILE_SCHEMA)
     for property in properties:
         value = property["id"]
         update = collection.replace_one({"id": value}, property, upsert=True)
@@ -95,49 +122,94 @@ def sync_user_profile_data_from_crm_to_db():
 
 def get_all_properties_id():
     id_list = []
-    collection = get_mongo_client("Properties")
+    collection = get_mongo_client(PROPERTIES_SCHEMA)
     x = collection.find({}, {'Property_ID': 1, 'id': 1})
     for ids in x:
         id_list.append({ids["Property_ID"]: ids["id"]})
     return id_list
 
 
-def download_attachment():
-    pid_list = get_all_properties_id()
+# def download_attachment():
+#     pid_list = get_all_properties_id()
+#
+#     for data in pid_list:
+#         for key, value in data.items():
+#             pid_json = "https://cuberreality.s3.ap-south-1.amazonaws.com/" + key.strip() + "/" + key.strip() + "_ProjectSpecs/" + key.strip() + ".json"
+#             pid_txt = "https://cuberreality.s3.ap-south-1.amazonaws.com/" + key.strip() + "/" + key.strip() + "_ProjectSpecs/" + key.strip() + ".txt"
+#             download_attachment_from_s3(key.strip(), pid_json, pid_txt)
+#
+#
+# def download_attachment_from_s3(property_id, pid_json, pid_txt):
+#     complete_json = {}
+#     isAttachmentSuccess1 = False
+#     isAttachmentSuccess2 = False
+#     try:
+#         response = requests.get(pid_json)
+#         if response.status_code == 200:
+#             complete_json = response.json()
+#             isAttachmentSuccess1 = True
+#
+#     except Exception as ex:
+#         print("Error has occurred while downloading attachment " + pid_json + ". error " + str(ex))
+#     try:
+#         response = requests.get(pid_txt)
+#         if response.status_code == 200:
+#             complete_json["projectSpecification"].update({"specifications": str(response.text)})
+#             isAttachmentSuccess2 = True
+#     except Exception as ex:
+#         print("Error has occurred while downloading & processing attachment " + pid_txt + ". error " + str(ex))
+#
+#     if isAttachmentSuccess1 and isAttachmentSuccess2:
+#         collection = get_mongo_client("Properties")
+#         res = collection.update_one({"Property_ID": property_id}, {"$set": complete_json}, ).raw_result
+#         print(res, property_id, complete_json)
+#     else:
+#         print("Error has occurred while it was reading attachment files, urls " + pid_json + "  ," + pid_txt)
 
+def process_github_config():
+    pid_list = get_all_properties_id()
     for data in pid_list:
         for key, value in data.items():
-            pid_json = "https://cuberreality.s3.ap-south-1.amazonaws.com/" + key.strip() + "/" + key.strip() + "_ProjectSpecs/" + key.strip() + ".json"
-            pid_txt = "https://cuberreality.s3.ap-south-1.amazonaws.com/" + key.strip() + "/" + key.strip() + "_ProjectSpecs/" + key.strip() + ".txt"
-            download_attachment_from_s3(key.strip(), pid_json, pid_txt)
+            json_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
+                                     key.strip() + "_ProjectSpecs", key.strip() + ".json")
+            text_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
+                                     key.strip() + "_ProjectSpecs", key.strip() + ".txt")
+            parse_file(key.strip(), json_path, text_path)
 
 
-def download_attachment_from_s3(property_id, pid_json, pid_txt):
+def parse_file(property_id, json_path, text_path):
     complete_json = {}
     isAttachmentSuccess1 = False
     isAttachmentSuccess2 = False
+
     try:
-        response = requests.get(pid_json)
-        if response.status_code == 200:
-            complete_json = response.json()
+        with open(json_path, "r") as file:
+            complete_json = json.load(file)
             isAttachmentSuccess1 = True
 
+    except FileNotFoundError as ex:
+        print("Error has occurred while downloading attachment " + json_path + ". error " + str(ex))
+
     except Exception as ex:
-        print("Error has occurred while downloading attachment " + pid_json + ". error " + str(ex))
+        print((ex), json_path)
+
     try:
-        response = requests.get(pid_txt)
-        if response.status_code == 200:
-            complete_json["projectSpecification"].update({"specifications": str(response.text)})
+        with open(text_path, "r", encoding='utf-8') as file:
+            response = file.read()
+            complete_json["projectSpecification"].update({"specifications": str(response)})
             isAttachmentSuccess2 = True
+
+    except FileNotFoundError as ex:
+        print("Error has occurred while downloading & processing attachment " + text_path + ". error " + str(ex))
+
     except Exception as ex:
-        print("Error has occurred while downloading & processing attachment " + pid_txt + ". error " + str(ex))
+        print(str(ex), text_path)
 
     if isAttachmentSuccess1 and isAttachmentSuccess2:
-        collection = get_mongo_client("Properties")
+        collection = get_mongo_client(PROPERTIES_SCHEMA)
         res = collection.update_one({"Property_ID": property_id}, {"$set": complete_json}, ).raw_result
-        print(res, property_id, complete_json)
     else:
-        print("Error has occurred while it was reading attachment files, urls " + pid_json + "  ," + pid_txt)
+        print("Error has occurred while it was reading file from config")
 
 
 def create_search_space():
@@ -192,9 +264,9 @@ def create_search_space():
                 search_data["Country"].append({"State": [{"City": [{"City_Name": City, "Sub_Area": [
                     {"Area": [{"Property_Data": [property_details], "Area_Name": Area}], "Sub_Area_Name": Sub_Area}]}],
                                                           "State_Name": State}], "Country_Name": Country})
-    collection1 = get_mongo_client("Search")
+    collection1 = get_mongo_client(SEARCH_SCHEMA)
     collection1.drop()
-    collection1 = get_mongo_client("Search")
+    collection1 = get_mongo_client(SEARCH_SCHEMA)
     collection1.insert_one(search_data)
 
 
@@ -211,9 +283,42 @@ def format_search_data(data):
     return "_".join(data.split(" ")).strip()
 
 
-load_config_details()
-sync_properties_data_from_crm_to_db()
-sync_leads_data_from_crm_to_db()
-sync_user_profile_data_from_crm_to_db()
-create_search_space()
-download_attachment()
+def config_repo_clone():
+    if platform.system().lower() is "linux":
+        config_folder_delete = ['rm', '-rf', CONFIG_REPO_NAME]
+        config_folder_delete_query = Popen(config_folder_delete, stdout=PIPE, stderr=PIPE)
+        status, error = config_folder_delete_query.communicate()
+
+    if platform.system().lower() is "windows":
+        os.system('rmdir /S /Q "{}"'.format(CONFIG_REPO_NAME))
+
+    git_command = ['git', 'clone', 'https://' + config_data.get(
+        'github_token') + ':x-oauth-basic@github.com/cuberreality/cuberreality-config']
+    git_query = Popen(git_command, stdout=PIPE, stderr=PIPE)
+    git_status, error = git_query.communicate()
+    print(git_status, error)
+
+
+def main():
+    load_config_details()
+    refresh_token()
+    sync_occupations_data()
+    sync_properties_data_from_crm_to_db()
+    sync_leads_data_from_crm_to_db()
+    sync_user_profile_data_from_crm_to_db()
+    create_search_space()
+    config_repo_clone()
+    process_github_config()
+
+
+app = Flask(__name__)
+
+
+@app.route("/sync/crm")
+def sync_crm():
+    main()
+    return "Successfully synced"
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

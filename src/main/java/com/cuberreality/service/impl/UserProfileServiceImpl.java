@@ -4,6 +4,7 @@ import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.mapper.UserMapper;
+import com.cuberreality.repository.OccupationsRepository;
 import com.cuberreality.repository.UserLoginRepository;
 import com.cuberreality.repository.UserProfileRepository;
 import com.cuberreality.request.CreateUserProfileRequest;
@@ -33,6 +34,9 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Autowired
     private UserProfileRepository userProfileRepository;
+
+    @Autowired
+    private OccupationsRepository occupationsRepository;
 
     @Autowired
     private UserLoginRepository userLoginRepository;
@@ -103,9 +107,6 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public ResellersOccupationResponse getResellersOccupation() throws Exception {
-//        List<String> arrayList = Arrays.asList("Loan Agent", "Insurance Agent", "Homemaker", "Home Loan Agent", "Mutual Fund Agent", "Financial Advisors", "Chartered accountant", "Architect", "Interior Designer", "Civil Contractor / Engineer");
-        String path = "/bigin/v1/Contacts/269594000000237301?fields=Reseller_Is";
-        ResellerOccupationApiResponse resellerOccupationResponse = apiClient.get(ResellerOccupationApiResponse.class, path);
-        return new ResellersOccupationResponse(resellerOccupationResponse.getData().get(0).getResellerList());
+        return userMapper.toResellersOccupationResponse(occupationsRepository.findAll().get(0));
     }
 }

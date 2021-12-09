@@ -7,9 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.cuberreality.constant.Schema.PROPERTIES_SCHEMA;
+
 
 @Data
-@Document("Properties")
+@Document(PROPERTIES_SCHEMA)
 public class PropertiesSchema {
 
     @Field("_id")

@@ -1,8 +1,10 @@
 package com.cuberreality.mapper;
 
+import com.cuberreality.entity.occupations.OccupationsSchema;
 import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.request.CreateUserProfileRequest;
 import com.cuberreality.request.user.CreateUserRequest;
+import com.cuberreality.response.user.ResellersOccupationResponse;
 import com.cuberreality.response.user.UserDetailsApiResponse;
 import org.mapstruct.Mapper;
 
@@ -14,4 +16,6 @@ public interface UserMapper {
     UserDetailsApiResponse toUserDetailsApi(UserProfilesSchema response);
 
     CreateUserRequest  toCreateUserRequest(CreateUserProfileRequest request);
+
+    ResellersOccupationResponse toResellersOccupationResponse(OccupationsSchema occupationsSchema);
 }

@@ -6,8 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 public class ResellersOccupationResponse {
 
-    private List<String> resellersOccupation;
+    public List<String> resellersOccupation;
 }
