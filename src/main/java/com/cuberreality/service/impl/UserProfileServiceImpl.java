@@ -71,16 +71,19 @@ public class UserProfileServiceImpl implements UserProfileService {
         createUserRequest.setUserType(Collections.singletonList(userType));
         createUserRequest.setUserStatus("Active");
         createUserRequest.setMobile(mobileNumber);
-
+        createUserRequest.setLastName("None");
         request.setCreateRequest(Collections.singletonList(createUserRequest));
 
         // Create User details in CRM
 
+
         String path = "/bigin/v1/Contacts";
         CreateUserApiResponse createUserApiResponse = apiClient.post(request, CreateUserApiResponse.class, path);
+
         String id = createUserApiResponse.getData().get(0).getDetails().getId();
 
         // Get user details in from CRM
+        System.out.println("Start fetching data "+id);
         String pathWithId = path + "/" + id;
         FetchUserApiResponse fetchUserApiResponse = apiClient.get(FetchUserApiResponse.class, pathWithId);
         UserDetailsApiResponse userDetailsApiResponse = fetchUserApiResponse.getData().get(0);

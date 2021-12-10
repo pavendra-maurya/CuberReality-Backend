@@ -21,5 +21,5 @@ constants:
   crm_client_secret: 694014c68fdff36d4cae0d420b581e700f1f88b5da
   crm_base_url: https://www.zohoapis.in
   crm_auth_base_url: https://accounts.zoho.in
-  bearer_token: 1000.8ce67844231845a35b32f3bc81de70fc.2239b1d32dbb5343b0c6929ba3ec2338
+  bearer_token: 1000.427aae7a1166ad8d8447d69d2a4c6002.0dae9444f557bf504a0f2afa683aa4af
 
