@@ -14,4 +14,5 @@ public interface PropertiesRepository extends MongoRepository<PropertiesSchema, 
 
        Optional<PropertiesSchema> findById(String id);
 
+       Optional<PropertiesSchema> findByPropertyID(String property_id);
 }

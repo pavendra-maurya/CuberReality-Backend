@@ -149,7 +149,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     @Override
     public PropertiesSearchDetails getPropertyById(String property_id) {
-        Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findById(property_id);
+        Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByPropertyID(property_id);
 
         if (propertiesSchema.isPresent())
             return propertiesMapper.toPropertiesResponse(propertiesSchema.get());
