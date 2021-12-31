@@ -65,15 +65,15 @@ public class AuthorizationToken {
     }
 
     public String getAuthorizationToken() {
-//        if (lastGeneratedTime == null)
-//            lastGeneratedTime = LocalDateTime.now();
-//        int diffTme = (int) ChronoUnit.MINUTES.between(lastGeneratedTime, LocalDateTime.now());
-//        System.out.println("Last Token generated before " + Math.abs(diffTme) + " minutes");
-//        if (this.authorizationToken == null || Math.abs(diffTme) > 55) {
-//            crmRefreshAuthorizationToken();
-//            return this.authorizationToken;
-//        }
-//       return this.authorizationToken;
-        return appConfig.getBearer_token();
+        if (lastGeneratedTime == null)
+            lastGeneratedTime = LocalDateTime.now();
+        int diffTme = (int) ChronoUnit.MINUTES.between(lastGeneratedTime, LocalDateTime.now());
+        System.out.println("Last Token generated before " + Math.abs(diffTme) + " minutes");
+        if (this.authorizationToken == null || Math.abs(diffTme) > 55) {
+            crmRefreshAuthorizationToken();
+            return this.authorizationToken;
+        }
+       return this.authorizationToken;
+       // return appConfig.getBearer_token();
     }
 }

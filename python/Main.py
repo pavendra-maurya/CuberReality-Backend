@@ -128,44 +128,6 @@ def get_all_properties_id():
         id_list.append({ids["Property_ID"]: ids["id"]})
     return id_list
 
-
-# def download_attachment():
-#     pid_list = get_all_properties_id()
-#
-#     for data in pid_list:
-#         for key, value in data.items():
-#             pid_json = "https://cuberreality.s3.ap-south-1.amazonaws.com/" + key.strip() + "/" + key.strip() + "_ProjectSpecs/" + key.strip() + ".json"
-#             pid_txt = "https://cuberreality.s3.ap-south-1.amazonaws.com/" + key.strip() + "/" + key.strip() + "_ProjectSpecs/" + key.strip() + ".txt"
-#             download_attachment_from_s3(key.strip(), pid_json, pid_txt)
-#
-#
-# def download_attachment_from_s3(property_id, pid_json, pid_txt):
-#     complete_json = {}
-#     isAttachmentSuccess1 = False
-#     isAttachmentSuccess2 = False
-#     try:
-#         response = requests.get(pid_json)
-#         if response.status_code == 200:
-#             complete_json = response.json()
-#             isAttachmentSuccess1 = True
-#
-#     except Exception as ex:
-#         print("Error has occurred while downloading attachment " + pid_json + ". error " + str(ex))
-#     try:
-#         response = requests.get(pid_txt)
-#         if response.status_code == 200:
-#             complete_json["projectSpecification"].update({"specifications": str(response.text)})
-#             isAttachmentSuccess2 = True
-#     except Exception as ex:
-#         print("Error has occurred while downloading & processing attachment " + pid_txt + ". error " + str(ex))
-#
-#     if isAttachmentSuccess1 and isAttachmentSuccess2:
-#         collection = get_mongo_client("Properties")
-#         res = collection.update_one({"Property_ID": property_id}, {"$set": complete_json}, ).raw_result
-#         print(res, property_id, complete_json)
-#     else:
-#         print("Error has occurred while it was reading attachment files, urls " + pid_json + "  ," + pid_txt)
-
 def process_github_config():
     pid_list = get_all_properties_id()
     for data in pid_list:
@@ -177,6 +139,81 @@ def process_github_config():
             parse_file(key.strip(), json_path, text_path)
 
 
+def image_processing(json_data):
+    base_url = config_data.get('image_base_url')
+    image_data = json_data.get('imageUrl')
+    if image_data:
+        focusedImg_url = image_data.get('focusedImg_url')
+        json_data["imageUrl"]["focusedImg_url"] = add_base_image_url(base_url, focusedImg_url)
+        broucher_url = image_data.get('broucher_url')
+        json_data["imageUrl"]["broucher_url"] = add_base_image_url(base_url, broucher_url)
+        BuilderLogo_url = image_data.get('BuilderLogo_url')
+        json_data["imageUrl"]["BuilderLogo_url"] = add_base_image_url(base_url, BuilderLogo_url)
+        MasterPlan_url = image_data.get('MasterPlan_url')
+        json_data["imageUrl"]["MasterPlan_url"] = add_base_image_url(base_url, MasterPlan_url)
+        PaymentPlan_url = image_data.get('PaymentPlan_url')
+        json_data["imageUrl"]["PaymentPlan_url"] = add_base_image_url(base_url, PaymentPlan_url)
+        ProjectImages_url = image_data.get('ProjectImages_url')
+        json_data["imageUrl"]["ProjectImages_url"] = add_base_image_url(base_url, ProjectImages_url)
+        ProjectLogo_url = image_data.get('ProjectLogo_url')
+        json_data["imageUrl"]["ProjectLogo_url"] = add_base_image_url(base_url, ProjectLogo_url)
+        UnitPhotosUrl = image_data.get('UnitPhotosUrl')
+        json_data["imageUrl"]["UnitPhotosUrl"] = add_base_image_url(base_url, UnitPhotosUrl)
+        Videos_url = image_data.get('Videos_url')
+        json_data["imageUrl"]["Videos_url"] = add_base_image_url(base_url, Videos_url)
+        FloorPlans_url = image_data.get('FloorPlans_url')
+        if FloorPlans_url:
+            FloorPlans_url_2bhk = FloorPlans_url.get('2BHK')
+            if FloorPlans_url_2bhk:
+                FloorPlans_url_2bhk_type1 = FloorPlans_url_2bhk.get('Type1')
+                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type1"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_2bhk_type1)
+                FloorPlans_url_2bhk_type2 = FloorPlans_url_2bhk.get('Type2')
+                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type2"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_2bhk_type2)
+                FloorPlans_url_2bhk_type3 = FloorPlans_url_2bhk.get('Type3')
+                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type3"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_2bhk_type3)
+                FloorPlans_url_2bhk_type4 = FloorPlans_url_2bhk.get('Type4')
+                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type4"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_2bhk_type4)
+                FloorPlans_url_2bhk_type5 = FloorPlans_url_2bhk.get('Type5')
+                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type5"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_2bhk_type5)
+                FloorPlans_url_2bhk_type6 = FloorPlans_url_2bhk.get('Type6')
+                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type6"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_2bhk_type6)
+
+            FloorPlans_url_3bhk = FloorPlans_url.get('3BHK')
+            if FloorPlans_url_3bhk:
+                FloorPlans_url_3bhk_type1 = FloorPlans_url_3bhk.get('Type1')
+                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type1"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_3bhk_type1)
+                FloorPlans_url_3bhk_type2 = FloorPlans_url_3bhk.get('Type2')
+                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type2"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_3bhk_type2)
+                FloorPlans_url_3bhk_type3 = FloorPlans_url_3bhk.get('Type3')
+                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type3"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_3bhk_type3)
+                FloorPlans_url_3bhk_type4 = FloorPlans_url_3bhk.get('Type4')
+                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type4"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_3bhk_type4)
+                FloorPlans_url_3bhk_type5 = FloorPlans_url_3bhk.get('Type5')
+                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type5"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_3bhk_type5)
+                FloorPlans_url_3bhk_type6 = FloorPlans_url_3bhk.get('Type6')
+                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type6"] = add_base_image_url(base_url,
+                                                                                              FloorPlans_url_3bhk_type6)
+    return json_data
+
+def add_base_image_url(base_url, data):
+    data_list = []
+    if data:
+        for path in data:
+            data_list.append(base_url + "/" + path)
+    return data_list
+
+
 def parse_file(property_id, json_path, text_path):
     complete_json = {}
     isAttachmentSuccess1 = False
@@ -185,6 +222,8 @@ def parse_file(property_id, json_path, text_path):
     try:
         with open(json_path, "r") as file:
             complete_json = json.load(file)
+            # Implement parser to add url in image
+            complete_json = image_processing(complete_json)
             isAttachmentSuccess1 = True
 
     except FileNotFoundError as ex:
