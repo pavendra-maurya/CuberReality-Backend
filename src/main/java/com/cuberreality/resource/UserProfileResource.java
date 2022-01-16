@@ -19,9 +19,9 @@ public class UserProfileResource {
     @Autowired
     private UserProfileService userProfileService;
 
-    @RequestMapping(value = "/user-profile/{user_id}", method = RequestMethod.GET)
-    public ResponseEntity<?> getUserDetails(@PathVariable String user_id) {
-        return new ResponseEntity<>(new BaseResponse<>(userProfileService.getUserDetails(user_id), ""), HttpStatus.OK);
+    @RequestMapping(value = "/user-profile", method = RequestMethod.GET)
+    public ResponseEntity<?> getUserDetails() {
+        return new ResponseEntity<>(new BaseResponse<>(userProfileService.getUserDetails(), ""), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/user-profile", method = RequestMethod.POST)
@@ -29,9 +29,9 @@ public class UserProfileResource {
         return new ResponseEntity<>(new BaseResponse<>(userProfileService.createUserProfile(createUserProfileRequest), ""), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/user-profile", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUserDetails(@RequestBody UpdateUserRequest updateUserRequest) {
-        return new ResponseEntity<>(new BaseResponse<>(userProfileService.updateUserDetails(updateUserRequest), ""), HttpStatus.OK);
+    @RequestMapping(value = "/user-profile/{userId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUserDetails(@RequestBody UpdateUserRequest updateUserRequest, @PathVariable String userId) throws Exception {
+        return new ResponseEntity<>(new BaseResponse<>(userProfileService.updateUserDetails(updateUserRequest,userId), ""), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/reseller/occupations", method = RequestMethod.GET)

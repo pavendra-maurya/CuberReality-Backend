@@ -12,7 +12,7 @@ public class UserDetailsApiResponse {
     @JsonProperty(value = "Mobile")
     private String phoneNumber;
 
-    @JsonProperty(value = "Full_Name")
+    @JsonProperty(value = "First_Name")
     private String userName;
 
     @JsonProperty("user_uuid")
@@ -41,6 +41,9 @@ public class UserDetailsApiResponse {
 
     @JsonProperty(value = "id")
     private String crmUserId;
+
+    @JsonProperty(value = "Email")
+    private String Email;
 
     @Field(value = "referral_code")
     private String referralCode;

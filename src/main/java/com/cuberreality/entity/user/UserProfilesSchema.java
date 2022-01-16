@@ -19,7 +19,7 @@ public class UserProfilesSchema {
     @Field(value = "Mobile")
     private String phoneNumber;
 
-    @Field(value = "Full_Name")
+    @Field(value = "First_Name")
     private String userName;
 
     @Field(value = "user_uuid")
@@ -39,6 +39,9 @@ public class UserProfilesSchema {
 
     @Field(value = "Total_Earned")
     private int totalEarned;
+
+    @Field(value = "Email")
+    private String Email;
 
     @Field(value = "user_type")
     private List<String> userType;

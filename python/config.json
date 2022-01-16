@@ -1,6 +1,6 @@
 {
-  "token": "1000.ccdd954e9715ff1e6875de70162f43ff.192f5e1359f05c2fb93ac0c6a266aed0",
-  "crm_refresh_token": "1000.90ee9177932cdfc3e741b2529b7993e4.5b99c635844a4cd1d1b9713084038b88",
+  "token": "1000.5bea6e5f1747bca0701164eb5b2019de.91c0db43453831e63db25330be350eb6",
+  "crm_refresh_token": "1000.9badc856a46e840bb7b8061f9bb1f7ff.06160d061a7bfe6d67d79b6b6b8facaf",
   "crm_client_id": "1000.DJ1HFBUXXQ8YQUO4CH5KL5PB2KPZAM",
   "crm_client_secret": "694014c68fdff36d4cae0d420b581e700f1f88b5da",
   "crm_account_url": "https://accounts.zoho.in",
@@ -14,3 +14,4 @@
   "image_base_url": "https://cuberreality.s3.ap-south-1.amazonaws.com",
   "github_token": "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"
 }
+

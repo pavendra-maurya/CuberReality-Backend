@@ -2,7 +2,6 @@ package com.cuberreality.resource;
 
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
 import com.cuberreality.response.BaseResponse;
-import com.cuberreality.response.propertise.PropertiesSearchResponse;
 import com.cuberreality.service.PropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +32,11 @@ public class PropertiesResource {
     @RequestMapping(value = "/property/{property_id}", method = RequestMethod.GET)
     public ResponseEntity<?> getPropertyById(@PathVariable String property_id) {
         return new ResponseEntity<>(new BaseResponse<>(propertiesService.getPropertyById(property_id), ""), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/property/area/list", method = RequestMethod.GET)
+    public ResponseEntity<?> getPropertyAreas() {
+        return new ResponseEntity<>(new BaseResponse<>(propertiesService.getSearchAreas(), ""), HttpStatus.OK);
     }
 
 

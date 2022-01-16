@@ -6,6 +6,8 @@ public interface Schema {
 
     String LEADS_SCHEMA = "LeadsSchema";
 
+    String REFER_LEADS_SCHEMA = "ReferLeadsSchema";
+
     String SEARCH_SCHEMA = "SearchSchema";
 
     String USER_PROFILE_SCHEMA = "UserProfilesSchema";

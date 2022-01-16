@@ -1,16 +1,13 @@
 package com.cuberreality.response.leads;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
-@Data
-public class GetLeadResponseModel {
 
+@Data
+public class GetReferLeadResponseModel {
 
     @JsonProperty("Property_Catagory")
     private List<String> property_Catagory;
@@ -58,6 +55,12 @@ public class GetLeadResponseModel {
 
     @JsonProperty("Reseller_Comments")
     private String Reseller_Comments;
+    @JsonProperty("Owner_Mobile")
+    private String Owner_Mobile;
+    @JsonProperty("Owner_Name")
+    private String Owner_Name;
+
+
 
     @JsonProperty("Reseller_Loan_Agent")
     private boolean reseller_Loan_Agent;

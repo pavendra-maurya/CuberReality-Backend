@@ -1,21 +1,24 @@
 package com.cuberreality.entity.leads;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigInteger;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import static com.cuberreality.constant.Schema.LEADS_SCHEMA;
+import static com.cuberreality.constant.Schema.REFER_LEADS_SCHEMA;
 
-@Document(LEADS_SCHEMA)
 @Data
-public class LeadsSchema {
+@Document(REFER_LEADS_SCHEMA)
+public class ReferLeadSchema {
     @Field("_id")
     private BigInteger mongoId;
+
+    @Field("id")
+    private BigInteger id;
 
     @Field("Property_Catagory")
     public List<String> property_Catagory;
@@ -41,8 +44,6 @@ public class LeadsSchema {
     public String review;
     @Field("__state")
     public String state;
-    @Field("id")
-    public String id;
     @Field("__process_flow")
     public boolean processFlow;
     @Field("Deal_Name")
@@ -51,11 +52,7 @@ public class LeadsSchema {
     public List<String> associated_Products;
     @Field("Stage")
     public String stage;
-
-    @Field("Reseller_Comments")
-    public String Reseller_Comments;
-
-  //  @Field("leadId")
+    //  @Field("leadId")
 //    public String leadId;
 
     @Field("crmLeadId")
@@ -97,6 +94,10 @@ public class LeadsSchema {
     public boolean inMerge;
     @Field("Buyer_Name")
     public String buyer_Name;
+    @Field("Owner_Name")
+    public String Owner_Name;
+    @Field("Owner_Mobile")
+    public String Owner_Mobile;
     @Field("Tag")
     public List<String> tag;
     @Field("Created_By")
@@ -106,6 +107,6 @@ public class LeadsSchema {
     @Field("Property_Name")
     public String property_Name;
 
-
-
+    @JsonProperty("Reseller_Comments")
+    private String Reseller_Comments;
 }

@@ -1,11 +1,13 @@
 package com.cuberreality.entity.propertise;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.cuberreality.constant.Schema.PROPERTIES_SCHEMA;
 
@@ -152,10 +154,16 @@ public class PropertiesSchema {
     @Field("PID")
     private String pID;
 
-    private FloorPlan floorPlan;
+   // private FloorPlan floorPlan;
+   Map<String, Map<String,Type>> floorPlan;
     private ImageUrl imageUrl;
     private PlotSize plotSize;
     private String projectName;
     private ProjectSpecification projectSpecification;
     private ReraApproved reraApproved;
+
+    @Field("UnitSpecification")
+    public UnitSpecification unitSpecification;
+
+
 }

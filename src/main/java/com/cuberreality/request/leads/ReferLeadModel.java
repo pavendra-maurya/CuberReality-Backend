@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class CreateLeadModel {
-
-    @JsonProperty("Buyer_ID")
-    private String Buyer_ID;
+public class ReferLeadModel {
+//    @JsonProperty("Buyer_ID")
+//    private String Buyer_ID;
 
     @JsonProperty("Description")
     private String Description;
@@ -28,26 +27,25 @@ public class CreateLeadModel {
     @JsonProperty("$editable")
     private boolean $editable;
 
-    @JsonProperty("Reseller_Comments")
-    private String Reseller_Comments;
-
-    @JsonProperty("Buyer_Mobile_Number")
-    private String Buyer_Mobile_Number;
+    @JsonProperty("Owner_Mobile")
+    private String Owner_Mobile;
 
     @JsonProperty("Pipeline")
     private String Pipeline;
 
-    @JsonProperty("Property_ID") // this is user readable lead id like PID12A
-    private String Property_ID;
-    @JsonProperty("Buyer_Name")
-    private String Buyer_Name;
+//    @JsonProperty("Property_ID")
+//    private String Property_ID;
+    @JsonProperty("Owner_Name")
+    private String Owner_Name;
     @JsonProperty("$approval_state")
     private String $approval_state;
     @JsonProperty("Property_Name")
     private String Property_Name;
 
-    @JsonProperty("crmPropertyId") // crm property id
-    private String crmPropertyId;
+//    @JsonProperty("userPropertyId")
+//    private String userPropertyId; // not required
 
+    @JsonProperty("Reseller_Comments")
+    private String Reseller_Comments;
 
 }

@@ -1,5 +1,6 @@
 package com.cuberreality.service.impl;
 
+import com.cuberreality.entity.leads.LeadsSchema;
 import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.error.RecordNotFoundException;
@@ -8,6 +9,7 @@ import com.cuberreality.repository.OccupationsRepository;
 import com.cuberreality.repository.UserLoginRepository;
 import com.cuberreality.repository.UserProfileRepository;
 import com.cuberreality.request.CreateUserProfileRequest;
+import com.cuberreality.request.leads.UpdateLeadModel;
 import com.cuberreality.request.user.CreateApiRequest;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
@@ -16,10 +18,12 @@ import com.cuberreality.service.UserLoginService;
 import com.cuberreality.service.UserProfileService;
 import com.cuberreality.util.ApiClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -44,8 +48,13 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    MongoTemplate mongoTemplate;
+
     @Override
-    public UserDetailsApiResponse getUserDetails(String user_id) {
+    public UserDetailsApiResponse getUserDetails() {
+
+
         UserJwtTokenValidationResponse userJwtTokenValidationResponse = userLoginService.userJwtTokenValidation();
         String uuid = userJwtTokenValidationResponse.getUuid();
         Optional<UserProfilesSchema> userProfilesSchema = userProfileRepository.findByUserUuid(uuid);
@@ -93,6 +102,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         userDetailsApiResponse.setReferralEligibleCashback(true);
 
         // Save user details in local database;
+        userDetailsApiResponse.setTotalEarned(1000);
         userProfileRepository.save(userMapper.toUserProfileSchema(userDetailsApiResponse));
 
         userLogin.setUserRegistered(false);
@@ -103,13 +113,37 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public Object updateUserDetails(UpdateUserRequest updateUserRequest) {
+    public UpdateUserApiResponse updateUserDetails(UpdateUserRequest updateUserRequest, String userId) throws Exception {
+        CreateApiRequest<UpdateUserRequest> request = new CreateApiRequest<>();
+        updateUserRequest.setFirst_Name(updateUserRequest.getName());
+        request.setCreateRequest(Collections.singletonList(updateUserRequest));
+        String path = "/bigin/v1/Contacts/"+userId;
+        UpdateUserApiResponse createUserApiResponse = apiClient.put(request, UpdateUserApiResponse.class, path);
 
-        return null;
+
+       if("success".equalsIgnoreCase(createUserApiResponse.getData().get(0).getStatus())){
+           update(updateUserRequest,userId);
+
+       }
+
+
+        return createUserApiResponse;
     }
 
     @Override
     public ResellersOccupationResponse getResellersOccupation() throws Exception {
         return userMapper.toResellersOccupationResponse(occupationsRepository.findAll().get(0));
+    }
+
+    public UserProfilesSchema update(UpdateUserRequest updateUserRequest, String userId){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").is(userId));
+        Update update = new Update();
+        update.set("Email", updateUserRequest.getEmail());
+     //   update.set("First_Name", updateUserRequest.getFirst_Name());
+        update.set("First_Name", updateUserRequest.getName() );
+       // update.set("Last_Name", updateUserRequest.getLast_Name());
+        update.set("Reseller_Is", updateUserRequest.getReseller_Is());
+        return mongoTemplate.findAndModify(query, update, UserProfilesSchema.class);
     }
 }

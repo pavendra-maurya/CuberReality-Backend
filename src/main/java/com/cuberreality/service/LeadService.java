@@ -1,7 +1,6 @@
 package com.cuberreality.service;
 
 import com.cuberreality.request.leads.*;
-import com.cuberreality.response.leads.CreateLeadResponse;
 import com.cuberreality.response.leads.CreateLeadResponseModel;
 import com.cuberreality.response.leads.GetLeadResponseModel;
 import com.cuberreality.response.leads.UpdateLeadResponse;
@@ -22,4 +21,9 @@ public interface LeadService {
     List<GetLeadResponseModel> findLeadsByReseller(String id) throws Exception;
 
     UpdateLeadResponse updateLead(UpdateLeadModel updateLeadRequest, String leadId) throws Exception;
+
+    CreateLeadResponseModel referLead(ReferLeadModel createLeadModel) throws Exception;
+
+    Object getReferLead(String id);
+
 }

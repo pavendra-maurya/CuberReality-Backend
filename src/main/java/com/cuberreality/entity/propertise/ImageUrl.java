@@ -34,6 +34,6 @@ public class ImageUrl {
     @Field("Videos_url")
     private List<String> videosUrl;
 
-    @Field("FloorPlans_url")
-    private FloorPlansUrl floorPlansUrl;
+    @Field("displayImageUrls")
+    public List<String> displayImageUrls;
 }

@@ -1,12 +1,13 @@
 package com.cuberreality.response.propertise;
 
+import com.cuberreality.entity.propertise.Type;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @Data
@@ -151,10 +152,16 @@ public class PropertiesSearchDetails {
     @JsonProperty("PID")
     private String pID;
 
-    private FloorPlan floorPlan;
+    //private FloorPlan floorPlan;
+
+    Map<String, Map<String, Type>> floorPlan;
+
     private ImageUrl imageUrl;
     private PlotSize plotSize;
     private String projectName;
     private ProjectSpecification projectSpecification;
     private ReraApproved reraApproved;
+
+    public UnitSpecification unitSpecification;
+
 }

@@ -1,6 +1,7 @@
 package com.cuberreality.service.impl;
 
 
+import com.cuberreality.entity.leads.LeadsSchema;
 import com.cuberreality.entity.propertise.PropertiesSchema;
 import com.cuberreality.entity.propertisesearch.*;
 import com.cuberreality.entity.user.VisitedProperties;
@@ -9,16 +10,25 @@ import com.cuberreality.mapper.PropertiesMapper;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
 import com.cuberreality.repository.VisitedPropertiesRepository;
+import com.cuberreality.request.leads.UpdateLeadModel;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
 import com.cuberreality.response.propertise.PropertiesSearchDetails;
 import com.cuberreality.response.propertise.PropertiesSearchResponse;
+import com.cuberreality.response.propertise.PropertyAreaDetails;
+import com.cuberreality.response.propertise.PropertyAreaResponse;
 import com.cuberreality.service.PropertiesService;
 import com.cuberreality.util.ApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -31,6 +41,9 @@ public class PropertiesServiceImpl implements PropertiesService {
     private ApiClient apiClient;
 
     @Autowired
+    private Map<String, PropertyAreaDetails> searchDetailsStaticMap;
+
+    @Autowired
     private SearchRepository searchRepository;
 
     @Autowired
@@ -38,6 +51,9 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     @Autowired
     private PropertiesMapper propertiesMapper;
+
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     public PropertiesServiceImpl() {
     }
@@ -97,14 +113,19 @@ public class PropertiesServiceImpl implements PropertiesService {
         if (city.isPresent())
             subAreasList = city.get().getSubArea();
 
-        Optional<SubArea> subArea = subAreasList.stream()
-                .filter(obj -> obj.getSubAreaName().toLowerCase(Locale.ROOT)
-                        .contains(propertiesSearchRequest.getSubArea().toLowerCase(Locale.ROOT)))
-                .findFirst();
+
+        List<SubArea> subArea = subAreasList.stream()
+                .filter(subAreaMongo -> propertiesSearchRequest.getSubAreaList().stream()
+                        .anyMatch(reqSubArea ->
+                                reqSubArea.equalsIgnoreCase(subAreaMongo.getSubAreaName())))
+                .collect(Collectors.toList());
+
 
         List<Area> areasList = new ArrayList<>();
-        if (subArea.isPresent())
-            areasList = subArea.get().getArea();
+        subArea.stream().forEach(subAreaObj->areasList.addAll(subAreaObj.getArea()));
+
+
+
 
         List<PropertyData> propertyDataList = new ArrayList<>();
         for (Area area : areasList) {
@@ -132,19 +153,30 @@ public class PropertiesServiceImpl implements PropertiesService {
 
             if (visitedProperties.isPresent()) {
                 newVisitedProperties = visitedProperties.get();
-                newVisitedProperties.setVisitCount(newVisitedProperties.getVisitCount() + 1);
+               // newVisitedProperties.setVisitCount(newVisitedProperties.getVisitCount() + 1);
+                update(newVisitedProperties.getPropertyId(),newVisitedProperties.getVisitCount());
             } else {
                 newVisitedProperties = new VisitedProperties();
                 newVisitedProperties.setPropertyId(property_id);
                 newVisitedProperties.setVisitCount(1);
                 newVisitedProperties.setResellerId(referred_by_id);
+                visitedPropertiesRepository.save(newVisitedProperties);
+
             }
-            visitedPropertiesRepository.save(newVisitedProperties);
 
             return propertiesMapper.toPropertiesResponse(propertiesSchema.get());
         }
 
         throw new RecordNotFoundException("Given Property id does not exist");
+    }
+
+    public VisitedProperties update(String id, int count){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("property_id").is(id));
+        Update update = new Update();
+        update.set("visit_count", count+1);
+
+        return mongoTemplate.findAndModify(query, update, VisitedProperties.class);
     }
 
     @Override
@@ -154,6 +186,71 @@ public class PropertiesServiceImpl implements PropertiesService {
         if (propertiesSchema.isPresent())
             return propertiesMapper.toPropertiesResponse(propertiesSchema.get());
         throw new RecordNotFoundException("Given Property id does not exist");
+    }
+
+
+    @Override
+    public PropertyAreaResponse getSearchAreas() {
+        PropertyAreaResponse propertyAreaResponse = new PropertyAreaResponse();
+        Map<String, PropertyAreaDetails> searchDetailsMap =null;
+
+
+//        if(searchDetailsStaticMap!=null){
+//            searchDetailsMap=searchDetailsStaticMap;
+//        }else {
+//            searchDetailsMap= getStringPropertyAreaDetailsMap();
+//        }
+
+
+        searchDetailsMap= getStringPropertyAreaDetailsMap();
+
+        propertyAreaResponse.setPropertyAreaResponse(searchDetailsMap);
+        return propertyAreaResponse;
+
+    }
+
+    private Map<String, PropertyAreaDetails> getStringPropertyAreaDetailsMap() {
+        List<SearchSchema> searchSchemas = searchRepository.findAll();
+
+        Map<String , PropertyAreaDetails> searchDetailsMap = new HashMap<>();
+
+        for(Country country :searchSchemas.get(0).getCountry()){
+
+            for(State state :country.getState()){
+
+                for(City city :state.getCity()){
+
+                    PropertyAreaDetails propertyAreaDetails = new PropertyAreaDetails();
+                    propertyAreaDetails.setCountry(country.getCountryName());
+                    propertyAreaDetails.setState(state.getStateName());
+                      String cityName=city.getCityName();
+                    List subAreaList= new ArrayList();
+
+                  for(SubArea subArea:city.getSubArea()){
+                      subAreaList.add(subArea.getSubAreaName());
+
+                  }
+                   // propertyAreaDetails.setSubAreList(subAreaList);
+                  if(searchDetailsMap.containsKey(cityName)) {
+                      List<String> subAreaListOld = searchDetailsMap.get(cityName).getSubAreList();
+                      subAreaList.addAll(subAreaListOld);
+
+                  }
+                    propertyAreaDetails.setSubAreList(subAreaList);
+
+                    searchDetailsMap.put(cityName,propertyAreaDetails);
+
+
+
+                }
+
+            }
+
+
+
+        }
+        return searchDetailsMap;
+
     }
 
 

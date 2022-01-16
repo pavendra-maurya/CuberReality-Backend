@@ -2,6 +2,8 @@ package com.cuberreality.request.propertise;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PropertiesSearchRequest {
 
@@ -11,9 +13,7 @@ public class PropertiesSearchRequest {
 
     private String city;
 
-    private String subArea;
 
-    private long lat;
+    private List<String> subAreaList;
 
-    private long log;
 }

@@ -4,7 +4,6 @@ import pymongo
 import re
 import platform
 from flask import Flask
-
 from subprocess import Popen, PIPE
 import os
 
@@ -14,7 +13,6 @@ LEADS_SCHEMA = "LeadsSchema"
 USER_PROFILE_SCHEMA = "UserProfilesSchema"
 OCCUPATIONS_SCHEMA = "OccupationsSchema"
 SEARCH_SCHEMA = "SearchSchema"
-
 config_data = {}
 
 
@@ -29,7 +27,6 @@ def refresh_token():
     refresh_token = config_data.get('crm_refresh_token')
     client_id = config_data.get('crm_client_id')
     client_secret = config_data.get('crm_client_secret')
-
     payload = "------" \
               "WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; " \
               "name=\"refresh_token\"\r\n\r\n" + refresh_token + "\r\n------" \
@@ -40,11 +37,9 @@ def refresh_token():
                                                                                                                                                                "WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; " \
                                                                                                                                                                "name=\"grant_type\"\r\n\r\nrefresh_token\r\n------" \
                                                                                                                                                                "WebKitFormBoundary7MA4YWxkTrZu0gW--"
-
     headers = {
         'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
     }
-
     output = execute_api(config_data.get("crm_account_url") + config_data.get("refresh_token_path"), "POST", payload,
                          headers)
     if (output.get("access_token") is not None):
@@ -52,7 +47,11 @@ def refresh_token():
 
 
 def get_mongo_client(collection_name='Properties'):
-    client = pymongo.MongoClient("mongodb://" + config_data.get('host') + ":" + config_data.get('port'))
+    user_name = "nearbyse"
+    #password = "Kuchkito420"
+    password = "Kuchkitho420"
+    #client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    client = pymongo.MongoClient("mongodb://"+user_name+":"+password+"@" + config_data.get('host') + ":" + config_data.get('port')+"/?authSource=CuberReality")
     database = client["CuberReality"]
     collection = database[collection_name]
     return collection
@@ -81,21 +80,41 @@ def execute_api(url, method, payload=None, headers=None):
         return requests.request("POST", url, data=payload, headers=headers).json()
 
 
+def append_extra_data(crm_data, mongo_data):
+    if mongo_data is not None:
+        extra_key = list(set(mongo_data.keys()) - set(crm_data.keys()))
+        for key in extra_key:
+            crm_data[key] = mongo_data[key]
+    return crm_data
+
+
+def get_mongo_data(collection):
+    output = {}
+    cursor = collection.find({})
+    for document in cursor:
+        output[document["id"]] = document
+    return output
+
+
 def sync_properties_data_from_crm_to_db():
     properties = execute_api(config_data.get("crm_property_path"), "GET")
     collection = get_mongo_client(PROPERTIES_SCHEMA)
-    for property in properties:
-        value = property["id"]
-        update = collection.replace_one({"id": value}, property, upsert=True)
+    mongo_properties = get_mongo_data(collection)
+    for property_data in properties:
+        id = property_data["id"]
+        property_data = append_extra_data(property_data, mongo_properties.get(id))
+        update = collection.replace_one({"id": id}, property_data, upsert=True)
         print(update.raw_result)
 
 
 def sync_leads_data_from_crm_to_db():
-    properties = execute_api(config_data.get("crm_leads_path"), "GET")
+    lead_data = execute_api(config_data.get("crm_leads_path"), "GET")
     collection = get_mongo_client(LEADS_SCHEMA)
-    for property in properties:
-        value = property["id"]
-        update = collection.replace_one({"id": value}, property, upsert=True)
+    mongo_lead_data = get_mongo_data(collection)
+    for lead in lead_data:
+        id = lead["id"]
+        lead = append_extra_data(lead, mongo_lead_data.get(id))
+        update = collection.replace_one({"id": id}, lead, upsert=True)
         print(update.raw_result)
 
 
@@ -112,11 +131,13 @@ def sync_occupations_data():
 
 
 def sync_user_profile_data_from_crm_to_db():
-    properties = execute_api(config_data.get("crm_user_profile_path"), "GET")
+    user_profiles = execute_api(config_data.get("crm_user_profile_path"), "GET")
     collection = get_mongo_client(USER_PROFILE_SCHEMA)
-    for property in properties:
-        value = property["id"]
-        update = collection.replace_one({"id": value}, property, upsert=True)
+    mongo_user_profile = get_mongo_data(collection)
+    for user_profile in user_profiles:
+        id = user_profile["id"]
+        user_profile = append_extra_data(user_profile, mongo_user_profile.get(id))
+        update = collection.replace_one({"id": id}, user_profile, upsert=True)
         print(update.raw_result)
 
 
@@ -127,6 +148,7 @@ def get_all_properties_id():
     for ids in x:
         id_list.append({ids["Property_ID"]: ids["id"]})
     return id_list
+
 
 def process_github_config():
     pid_list = get_all_properties_id()
@@ -141,70 +163,27 @@ def process_github_config():
 
 def image_processing(json_data):
     base_url = config_data.get('image_base_url')
-    image_data = json_data.get('imageUrl')
-    if image_data:
-        focusedImg_url = image_data.get('focusedImg_url')
-        json_data["imageUrl"]["focusedImg_url"] = add_base_image_url(base_url, focusedImg_url)
-        broucher_url = image_data.get('broucher_url')
-        json_data["imageUrl"]["broucher_url"] = add_base_image_url(base_url, broucher_url)
-        BuilderLogo_url = image_data.get('BuilderLogo_url')
-        json_data["imageUrl"]["BuilderLogo_url"] = add_base_image_url(base_url, BuilderLogo_url)
-        MasterPlan_url = image_data.get('MasterPlan_url')
-        json_data["imageUrl"]["MasterPlan_url"] = add_base_image_url(base_url, MasterPlan_url)
-        PaymentPlan_url = image_data.get('PaymentPlan_url')
-        json_data["imageUrl"]["PaymentPlan_url"] = add_base_image_url(base_url, PaymentPlan_url)
-        ProjectImages_url = image_data.get('ProjectImages_url')
-        json_data["imageUrl"]["ProjectImages_url"] = add_base_image_url(base_url, ProjectImages_url)
-        ProjectLogo_url = image_data.get('ProjectLogo_url')
-        json_data["imageUrl"]["ProjectLogo_url"] = add_base_image_url(base_url, ProjectLogo_url)
-        UnitPhotosUrl = image_data.get('UnitPhotosUrl')
-        json_data["imageUrl"]["UnitPhotosUrl"] = add_base_image_url(base_url, UnitPhotosUrl)
-        Videos_url = image_data.get('Videos_url')
-        json_data["imageUrl"]["Videos_url"] = add_base_image_url(base_url, Videos_url)
-        FloorPlans_url = image_data.get('FloorPlans_url')
-        if FloorPlans_url:
-            FloorPlans_url_2bhk = FloorPlans_url.get('2BHK')
-            if FloorPlans_url_2bhk:
-                FloorPlans_url_2bhk_type1 = FloorPlans_url_2bhk.get('Type1')
-                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type1"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_2bhk_type1)
-                FloorPlans_url_2bhk_type2 = FloorPlans_url_2bhk.get('Type2')
-                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type2"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_2bhk_type2)
-                FloorPlans_url_2bhk_type3 = FloorPlans_url_2bhk.get('Type3')
-                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type3"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_2bhk_type3)
-                FloorPlans_url_2bhk_type4 = FloorPlans_url_2bhk.get('Type4')
-                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type4"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_2bhk_type4)
-                FloorPlans_url_2bhk_type5 = FloorPlans_url_2bhk.get('Type5')
-                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type5"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_2bhk_type5)
-                FloorPlans_url_2bhk_type6 = FloorPlans_url_2bhk.get('Type6')
-                json_data["imageUrl"]["FloorPlans_url"]["2BHK"]["Type6"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_2bhk_type6)
 
-            FloorPlans_url_3bhk = FloorPlans_url.get('3BHK')
-            if FloorPlans_url_3bhk:
-                FloorPlans_url_3bhk_type1 = FloorPlans_url_3bhk.get('Type1')
-                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type1"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_3bhk_type1)
-                FloorPlans_url_3bhk_type2 = FloorPlans_url_3bhk.get('Type2')
-                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type2"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_3bhk_type2)
-                FloorPlans_url_3bhk_type3 = FloorPlans_url_3bhk.get('Type3')
-                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type3"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_3bhk_type3)
-                FloorPlans_url_3bhk_type4 = FloorPlans_url_3bhk.get('Type4')
-                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type4"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_3bhk_type4)
-                FloorPlans_url_3bhk_type5 = FloorPlans_url_3bhk.get('Type5')
-                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type5"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_3bhk_type5)
-                FloorPlans_url_3bhk_type6 = FloorPlans_url_3bhk.get('Type6')
-                json_data["imageUrl"]["FloorPlans_url"]["3BHK"]["Type6"] = add_base_image_url(base_url,
-                                                                                              FloorPlans_url_3bhk_type6)
+    for key, val in json_data["imageUrl"].items():
+        json_data["imageUrl"][key] = add_base_image_url(base_url, json_data["imageUrl"][key])
+
+    for key, val in json_data["floorPlan"].items():
+        for key1, val1 in json_data["floorPlan"][key].items():
+            json_data["floorPlan"][key][key1]["imageUrls"] = add_base_image_url(base_url,
+                                                                                json_data["floorPlan"][key][key1][
+                                                                                    "imageUrls"])
+
+    displayImageUrls = []
+    ProjectImages_url = json_data["imageUrl"]["ProjectImages_url"]
+    UnitPhotosUrl = json_data["imageUrl"]["UnitPhotosUrl"]
+    MasterPlan_url = json_data["imageUrl"]["MasterPlan_url"]
+    displayImageUrls.extend(ProjectImages_url)
+    displayImageUrls.extend(UnitPhotosUrl)
+    displayImageUrls.extend(MasterPlan_url)
+    json_data["imageUrl"]["displayImageUrls"] = displayImageUrls
+
     return json_data
+
 
 def add_base_image_url(base_url, data):
     data_list = []
@@ -253,12 +232,14 @@ def parse_file(property_id, json_path, text_path):
 
 def create_search_space():
     search_data = {"Country": []}
-    collection = get_mongo_client("Properties")
+    collection = get_mongo_client(PROPERTIES_SCHEMA)
     x = collection.find({}, {'Country': 1, 'State': 1, 'Area': 1, 'City': 1, 'Sub_Area': 1, 'Address': 1, 'id': 1})
     for ids in x:
-        Country, State, Area, City, Sub_Area, Address, Id = format_search_data(ids["Country"]), format_search_data(
-            ids["State"]), format_search_data(ids["Area"]), format_search_data(ids["City"]), format_search_data(
-            ids["Sub_Area"]), format_search_data(ids["Address"]), format_search_data(ids["id"])
+        Country, State, Area, City, Sub_Area, Address, Id = format_search_data(
+            ids["Country"].lower()), format_search_data(
+            ids["State"].lower()), format_search_data(ids["Area"].lower()), format_search_data(
+            ids["City"].lower()), format_search_data(
+            ids["Sub_Area"].lower()), format_search_data(ids["Address"].lower()), format_search_data(ids["id"])
 
         if Country is None or State is None:
             continue
@@ -350,14 +331,25 @@ def main():
     process_github_config()
 
 
-app = Flask(__name__)
+# def sync_lead():
+#     collection = get_mongo_client(LEADS_SCHEMA)
+#     cursor = collection.find({})
+#     for lead in cursor:
+#         id = lead["id"]
+#         lead["uuid"] ="djsdfjfdjgdjgfkjg"
+#         update = collection.replace_one({"id": id}, lead, upsert=True)
+#         print(update.raw_result)
+#
+# load_config_details()
+# sync_lead()
+# app = Flask(__name__)
 
-
-@app.route("/sync/crm")
-def sync_crm():
-    main()
-    return "Successfully synced"
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+main()
+# @app.route("/sync/crm")
+# def sync_crm():
+#     main()
+#     return "Successfully synced"
+#
+#
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=5000, debug=True)

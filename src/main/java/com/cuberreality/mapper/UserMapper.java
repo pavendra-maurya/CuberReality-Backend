@@ -7,12 +7,15 @@ import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.response.user.ResellersOccupationResponse;
 import com.cuberreality.response.user.UserDetailsApiResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
     UserProfilesSchema toUserProfileSchema(UserDetailsApiResponse response);
 
+
+    //@Mapping(source="userName",target="userName")
     UserDetailsApiResponse toUserDetailsApi(UserProfilesSchema response);
 
     CreateUserRequest  toCreateUserRequest(CreateUserProfileRequest request);
