@@ -3,7 +3,6 @@ package com.cuberreality.entity.user;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.util.List;
 
 import static com.cuberreality.constant.Schema.USER_PROFILE_SCHEMA;

@@ -85,7 +85,6 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         // Create User details in CRM
 
-
         String path = "/bigin/v1/Contacts";
         CreateUserApiResponse createUserApiResponse = apiClient.post(request, CreateUserApiResponse.class, path);
 
@@ -102,7 +101,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         userDetailsApiResponse.setReferralEligibleCashback(true);
 
         // Save user details in local database;
-        userDetailsApiResponse.setTotalEarned(1000);
+        userDetailsApiResponse.setWallet(1000);
         userProfileRepository.save(userMapper.toUserProfileSchema(userDetailsApiResponse));
 
         userLogin.setUserRegistered(false);

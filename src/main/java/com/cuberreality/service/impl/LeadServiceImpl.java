@@ -20,6 +20,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -258,8 +260,8 @@ return getLeadResponseModels;
         update.set("Buyer_Name", updateLeadRequest.getBuyer_Name());
         update.set("Description", updateLeadRequest.getDescription());
         update.set("Deal_Name", updateLeadRequest.getDeal_Name());
+        update.set("Modified_Time", LocalDate.now().toString());
         update.set("Reseller_Comments", updateLeadRequest.getReseller_Comments());
-
         return mongoTemplate.findAndModify(query, update, LeadsSchema.class);
     }
 
