@@ -3,9 +3,10 @@ import requests
 import pymongo
 import re
 import platform
-from flask import Flask
 from subprocess import Popen, PIPE
 import os
+from datetime import datetime
+import subprocess
 
 CONFIG_REPO_NAME = "cuberreality-config"
 PROPERTIES_SCHEMA = "PropertiesSchema"
@@ -17,10 +18,25 @@ config_data = {}
 
 
 def load_config_details():
+    global config_data
     with open("config.json") as file:
-        global config_data
         config_data = json.load(file)
-    return config_data
+
+    last_generate_token_time = config_data["last_generate_token_time"]
+    time_format = "%Y-%m-%d %H:%M:%S"
+    prev = datetime.strptime(last_generate_token_time, time_format)
+    current_time = datetime.now().strftime(time_format)
+    current = datetime.strptime(str(current_time), time_format)
+    diff = (current - prev).seconds // 60
+    if diff > 55:
+        token = refresh_token()
+        if token:
+            config_data["token"] = token
+            config_data["last_generate_token_time"] = str(current_time)
+            with open('config.json', 'w') as outfile:
+                json.dump(config_data, outfile)
+        else:
+            exit(1)
 
 
 def refresh_token():
@@ -42,16 +58,22 @@ def refresh_token():
     }
     output = execute_api(config_data.get("crm_account_url") + config_data.get("refresh_token_path"), "POST", payload,
                          headers)
-    if (output.get("access_token") is not None):
-        config_data["token"] = output.get("access_token")
+    if output.get("access_token") is not None:
+        return output.get("access_token")
+    else:
+        print("Access token is not generated")
+        return None
 
 
 def get_mongo_client(collection_name='Properties'):
-    user_name = "nearbyse"
-    #password = "Kuchkito420"
+    #user_name = "nearbyse"
+    # password = "Kuchkito420"
+    # client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    user_name = "nearbysecuber"
     password = "Kuchkitho420"
-    #client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
-    client = pymongo.MongoClient("mongodb://"+user_name+":"+password+"@" + config_data.get('host') + ":" + config_data.get('port')+"/?authSource=CuberReality")
+    client = pymongo.MongoClient(
+        "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
+            'port') + "/?authSource=admin")
     database = client["CuberReality"]
     collection = database[collection_name]
     return collection
@@ -73,8 +95,8 @@ def execute_api(url, method, payload=None, headers=None):
             data = response.text
             return json.loads(re.sub(r'"\$', '"__', data))["data"]
         except Exception as ex:
-            print(ex)
-            exit(1)
+            print("Get Api does not returned data ")
+            return []
 
     if method.lower() == "post":
         return requests.request("POST", url, data=payload, headers=headers).json()
@@ -236,10 +258,10 @@ def create_search_space():
     x = collection.find({}, {'Country': 1, 'State': 1, 'Area': 1, 'City': 1, 'Sub_Area': 1, 'Address': 1, 'id': 1})
     for ids in x:
         Country, State, Area, City, Sub_Area, Address, Id = format_search_data(
-            ids["Country"].lower()), format_search_data(
-            ids["State"].lower()), format_search_data(ids["Area"].lower()), format_search_data(
-            ids["City"].lower()), format_search_data(
-            ids["Sub_Area"].lower()), format_search_data(ids["Address"].lower()), format_search_data(ids["id"])
+            ids["Country"].capitalize()), format_search_data(
+            ids["State"].capitalize()), format_search_data(ids["Area"].capitalize()), format_search_data(
+            ids["City"].capitalize()), format_search_data(
+            ids["Sub_Area"].capitalize()), format_search_data(ids["Address"].capitalize()), format_search_data(ids["id"])
 
         if Country is None or State is None:
             continue
@@ -304,24 +326,28 @@ def format_search_data(data):
 
 
 def config_repo_clone():
-    if platform.system().lower() is "linux":
-        config_folder_delete = ['rm', '-rf', CONFIG_REPO_NAME]
+    if platform.system().lower() == "linux":
+        print("deleting " + os.path.join(os.getcwd(), CONFIG_REPO_NAME) + " folder")
+        config_folder_delete = ['rm', '-rf', os.path.join(os.getcwd(), CONFIG_REPO_NAME)]
         config_folder_delete_query = Popen(config_folder_delete, stdout=PIPE, stderr=PIPE)
         status, error = config_folder_delete_query.communicate()
 
-    if platform.system().lower() is "windows":
+    if platform.system().lower() == "windows":
         os.system('rmdir /S /Q "{}"'.format(CONFIG_REPO_NAME))
 
     git_command = ['git', 'clone', 'https://' + config_data.get(
         'github_token') + ':x-oauth-basic@github.com/cuberreality/cuberreality-config']
+
     git_query = Popen(git_command, stdout=PIPE, stderr=PIPE)
     git_status, error = git_query.communicate()
     print(git_status, error)
+    if platform.system().lower() == "linux":
+        print("changing folder permissions")
+        subprocess.call(['chmod', '-R', '777', os.path.join(os.getcwd(), CONFIG_REPO_NAME)])
 
 
 def main():
     load_config_details()
-    refresh_token()
     sync_occupations_data()
     sync_properties_data_from_crm_to_db()
     sync_leads_data_from_crm_to_db()
@@ -330,21 +356,11 @@ def main():
     config_repo_clone()
     process_github_config()
 
+main()
 
-# def sync_lead():
-#     collection = get_mongo_client(LEADS_SCHEMA)
-#     cursor = collection.find({})
-#     for lead in cursor:
-#         id = lead["id"]
-#         lead["uuid"] ="djsdfjfdjgdjgfkjg"
-#         update = collection.replace_one({"id": id}, lead, upsert=True)
-#         print(update.raw_result)
-#
-# load_config_details()
-# sync_lead()
+
 # app = Flask(__name__)
 
-main()
 # @app.route("/sync/crm")
 # def sync_crm():
 #     main()

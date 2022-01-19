@@ -12,6 +12,6 @@
   "host": "127.0.0.1",
   "port": "27017",
   "image_base_url": "https://cuberreality.s3.ap-south-1.amazonaws.com",
-  "github_token": "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"
+  "github_token": "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",
+  "last_generate_token_time":"2022-01-18 21:52:34"
 }
-
