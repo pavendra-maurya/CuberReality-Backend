@@ -155,12 +155,17 @@ public class PropertiesSchema {
     private String pID;
 
    // private FloorPlan floorPlan;
-   Map<String, Map<String,Type>> floorPlan;
+    Map<String, Map<String,Type>> floorPlan;
     private ImageUrl imageUrl;
     private PlotSize plotSize;
     private String projectName;
     private ProjectSpecification projectSpecification;
     private ReraApproved reraApproved;
+
+    private String AreaRange;
+
+    @Field("video_urls")
+    private List<String> videoUrls;
 
     @Field("UnitSpecification")
     public UnitSpecification unitSpecification;

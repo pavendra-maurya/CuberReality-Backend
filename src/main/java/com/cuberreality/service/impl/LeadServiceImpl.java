@@ -260,7 +260,7 @@ return getLeadResponseModels;
         update.set("Buyer_Name", updateLeadRequest.getBuyer_Name());
         update.set("Description", updateLeadRequest.getDescription());
         update.set("Deal_Name", updateLeadRequest.getDeal_Name());
-        update.set("Modified_Time", LocalDate.now().toString());
+        update.set("Modified_Time", LocalDateTime.now().toString());
         update.set("Reseller_Comments", updateLeadRequest.getReseller_Comments());
         return mongoTemplate.findAndModify(query, update, LeadsSchema.class);
     }

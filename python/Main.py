@@ -15,11 +15,12 @@ USER_PROFILE_SCHEMA = "UserProfilesSchema"
 OCCUPATIONS_SCHEMA = "OccupationsSchema"
 SEARCH_SCHEMA = "SearchSchema"
 config_data = {}
+sync_property = []
 
 
 def load_config_details():
     global config_data
-    with open("config.json") as file:
+    with open(os.path.join(os.path.abspath("./"), "config.json")) as file:
         config_data = json.load(file)
 
     last_generate_token_time = config_data["last_generate_token_time"]
@@ -28,6 +29,7 @@ def load_config_details():
     current_time = datetime.now().strftime(time_format)
     current = datetime.strptime(str(current_time), time_format)
     diff = (current - prev).seconds // 60
+
     if diff > 55:
         token = refresh_token()
         if token:
@@ -66,14 +68,14 @@ def refresh_token():
 
 
 def get_mongo_client(collection_name='Properties'):
-    #user_name = "nearbyse"
-    # password = "Kuchkito420"
-    # client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
-    user_name = "nearbysecuber"
-    password = "Kuchkitho420"
-    client = pymongo.MongoClient(
-        "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
-            'port') + "/?authSource=admin")
+    user_name = "nearbyse"
+    password = "Kuchkito420"
+    client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    # user_name = "nearbysecuber"
+    # password = "Kuchkitho420"
+    # client = pymongo.MongoClient(
+    #     "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
+    #         'port') + "/?authSource=admin")
     database = client["CuberReality"]
     collection = database[collection_name]
     return collection
@@ -122,11 +124,14 @@ def sync_properties_data_from_crm_to_db():
     properties = execute_api(config_data.get("crm_property_path"), "GET")
     collection = get_mongo_client(PROPERTIES_SCHEMA)
     mongo_properties = get_mongo_data(collection)
+    global sync_property
     for property_data in properties:
-        id = property_data["id"]
-        property_data = append_extra_data(property_data, mongo_properties.get(id))
-        update = collection.replace_one({"id": id}, property_data, upsert=True)
-        print(update.raw_result)
+        if property_data.get("Product_Active") == True:
+            id = property_data["id"]
+            sync_property.append(id)
+            property_data = append_extra_data(property_data, mongo_properties.get(id))
+            update = collection.replace_one({"id": id}, property_data, upsert=True)
+            print(update.raw_result)
 
 
 def sync_leads_data_from_crm_to_db():
@@ -176,11 +181,14 @@ def process_github_config():
     pid_list = get_all_properties_id()
     for data in pid_list:
         for key, value in data.items():
-            json_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
-                                     key.strip() + "_ProjectSpecs", key.strip() + ".json")
-            text_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
-                                     key.strip() + "_ProjectSpecs", key.strip() + ".txt")
-            parse_file(key.strip(), json_path, text_path)
+            if value in sync_property:
+                json_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
+                                         key.strip() + "_ProjectSpecs", key.strip() + ".json")
+                text_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
+                                         key.strip() + "_ProjectSpecs", key.strip() + ".txt")
+                video_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
+                                          key.strip() + "_Videos", "video.json")
+                parse_file(key.strip(), json_path, text_path, video_path)
 
 
 def image_processing(json_data):
@@ -215,29 +223,24 @@ def add_base_image_url(base_url, data):
     return data_list
 
 
-def parse_file(property_id, json_path, text_path):
+def parse_file(property_id, json_path, text_path, video_path):
     complete_json = {}
-    isAttachmentSuccess1 = False
-    isAttachmentSuccess2 = False
 
     try:
         with open(json_path, "r") as file:
             complete_json = json.load(file)
-            # Implement parser to add url in image
             complete_json = image_processing(complete_json)
-            isAttachmentSuccess1 = True
 
     except FileNotFoundError as ex:
         print("Error has occurred while downloading attachment " + json_path + ". error " + str(ex))
 
     except Exception as ex:
-        print((ex), json_path)
+        print(ex, json_path)
 
     try:
         with open(text_path, "r", encoding='utf-8') as file:
             response = file.read()
             complete_json["projectSpecification"].update({"specifications": str(response)})
-            isAttachmentSuccess2 = True
 
     except FileNotFoundError as ex:
         print("Error has occurred while downloading & processing attachment " + text_path + ". error " + str(ex))
@@ -245,11 +248,21 @@ def parse_file(property_id, json_path, text_path):
     except Exception as ex:
         print(str(ex), text_path)
 
-    if isAttachmentSuccess1 and isAttachmentSuccess2:
-        collection = get_mongo_client(PROPERTIES_SCHEMA)
-        res = collection.update_one({"Property_ID": property_id}, {"$set": complete_json}, ).raw_result
-    else:
-        print("Error has occurred while it was reading file from config")
+    try:
+        with open(video_path, "r") as file:
+            video_json_data = json.load(file)
+            complete_json["video_urls"] = [] if video_json_data.get("video_urls") is None else video_json_data.get("video_urls")
+
+
+    except FileNotFoundError as ex:
+        print("Error has occurred while downloading & processing attachment " + video_path + ". error " + str(ex))
+
+    except Exception as ex:
+        print(str(ex), text_path)
+
+    collection = get_mongo_client(PROPERTIES_SCHEMA)
+    res = collection.update_one({"Property_ID": property_id}, {"$set": complete_json}, ).raw_result
+    print(res)
 
 
 def create_search_space():
@@ -261,7 +274,8 @@ def create_search_space():
             ids["Country"].capitalize()), format_search_data(
             ids["State"].capitalize()), format_search_data(ids["Area"].capitalize()), format_search_data(
             ids["City"].capitalize()), format_search_data(
-            ids["Sub_Area"].capitalize()), format_search_data(ids["Address"].capitalize()), format_search_data(ids["id"])
+            ids["Sub_Area"].capitalize()), format_search_data(ids["Address"].capitalize()), format_search_data(
+            ids["id"])
 
         if Country is None or State is None:
             continue
@@ -343,7 +357,7 @@ def config_repo_clone():
     print(git_status, error)
     if platform.system().lower() == "linux":
         print("changing folder permissions")
-        subprocess.call(['chmod', '-R', '777', os.path.join(os.getcwd(), CONFIG_REPO_NAME)])
+        subprocess.call(['chmod', '-R', '777', os.path.join(os.path.abspath("./"), CONFIG_REPO_NAME)])
 
 
 def main():
@@ -357,7 +371,6 @@ def main():
     process_github_config()
 
 main()
-
 
 # app = Flask(__name__)
 

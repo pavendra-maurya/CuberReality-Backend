@@ -4,6 +4,7 @@ import com.cuberreality.entity.propertise.Type;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -161,6 +162,11 @@ public class PropertiesSearchDetails {
     private String projectName;
     private ProjectSpecification projectSpecification;
     private ReraApproved reraApproved;
+
+    private String AreaRange;
+
+    @JsonProperty("video_urls")
+    private List<String> videoUrls;
 
     public UnitSpecification unitSpecification;
 
