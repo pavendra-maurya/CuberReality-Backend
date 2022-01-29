@@ -1,17 +1,14 @@
 package com.cuberreality.service.impl;
 
 
-import com.cuberreality.entity.leads.LeadsSchema;
 import com.cuberreality.entity.leads.ReferLeadSchema;
 import com.cuberreality.mapper.leads.LeadsMapper;
 import com.cuberreality.repository.leads.LeadsRepository;
 import com.cuberreality.repository.leads.ReferLeadRepository;
 import com.cuberreality.request.leads.*;
 import com.cuberreality.response.leads.*;
-import com.cuberreality.service.LeadService;
 import com.cuberreality.service.ReferLeadService;
 import com.cuberreality.util.ApiClient;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +28,13 @@ public class ReferLeadServiceImpl implements ReferLeadService {
 
     @Autowired
     LeadsMapper leadsMapper;
+
     @Autowired
     LeadsRepository leadsRepository;
+
     @Autowired
     ReferLeadRepository referLeadRepository;
+
     @Autowired
     MongoTemplate mongoTemplate;
 
@@ -123,6 +124,7 @@ public class ReferLeadServiceImpl implements ReferLeadService {
         Update update = new Update();
         update.set("Owner_Mobile", updateReferLeadModel.getOwner_Mobile());
         update.set("Owner_Name", updateReferLeadModel.getOwner_Name());
+        update.set("Modified_Time", LocalDateTime.now().toString());
         update.set("Description", updateReferLeadModel.getDescription());
         update.set("Deal_Name", updateReferLeadModel.getDeal_Name());
         update.set("Reseller_Comments", updateReferLeadModel.getReseller_Comments());

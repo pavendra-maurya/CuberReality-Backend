@@ -11,4 +11,12 @@ public class PropertyData {
 
     @Field("Address")
     private String address;
+
+    @Field("Focused")
+    private boolean  focused;
+
+    @Field("Product_Active")
+    private boolean  active;
+
+
 }

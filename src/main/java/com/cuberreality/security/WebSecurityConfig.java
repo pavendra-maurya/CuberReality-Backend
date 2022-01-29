@@ -16,9 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-//    @Resource(name = "userService")
-//    private UserDetailsService userDetailsService;
-
 	private JwtAuthenticationEntryPoint unauthorizedHandler;
 
 	private JwtAuthenticationFilter authenticationTokenFilterBean;
@@ -35,31 +32,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-//    @Autowired
-//    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userDetailsService)
-//                .passwordEncoder(encoder());
-//    }
-//    
-//    @Bean
-//    public BCryptPasswordEncoder encoder(){
-//        return new BCryptPasswordEncoder();
-//    }
-
-//	@Bean
-//	public JwtAuthenticationFilter authenticationTokenFilterBean() throws Exception {
-//		return JwtAuthenticationFilter();
-//	}
-
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors()
 		.and()
 		.csrf().disable()
 		.authorizeRequests()
-		.antMatchers("/api/v1/signup","/api/v1/login","/api/v1/otp/validation",
-				"/api/v1/device-token","/api/v1/property/*/*","/v2/api-docs",
-				"/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()
+		.antMatchers("/api/v1/signup","/api/v1/login","/api/v1/otp/validation", "/api/v1/property/*/*","/v2/api-docs",
+				"/swagger-resources/**",
+				"/swagger-ui.html", "/webjars/**","/api/v1/search/properties").permitAll()
 		.anyRequest().authenticated()
 		.and()
 		.exceptionHandling()

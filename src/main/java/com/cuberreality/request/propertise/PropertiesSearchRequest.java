@@ -13,7 +13,12 @@ public class PropertiesSearchRequest {
 
     private String city;
 
+    private boolean isFocusedPropertyBasedOnCity;
+
+    private String listPropertyBasedOn;
 
     private List<String> subAreaList;
+
+    private List<String> areaList;
 
 }

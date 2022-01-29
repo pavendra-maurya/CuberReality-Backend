@@ -15,8 +15,6 @@ import java.util.Map;
 @Document("Properties")
 public class PropertiesSearchDetails {
 
-    @JsonProperty("_id")
-    private String mongoId;
 
     @JsonProperty("Product_Category")
     private String productCategory;
@@ -24,8 +22,6 @@ public class PropertiesSearchDetails {
     @JsonProperty("Description")
     private Object description;
 
-    @JsonProperty("__currency_symbol")
-    private String currencySymbol;
 
     @JsonProperty("BHK")
     private List<String> bHK;
@@ -33,8 +29,6 @@ public class PropertiesSearchDetails {
     @JsonProperty("Address")
     private String address;
 
-    @JsonProperty("__review_process")
-    private ReviewProcess reviewProcess;
 
     @JsonProperty("Sales_Start_Date")
     private String salesStartDate;
@@ -48,17 +42,8 @@ public class PropertiesSearchDetails {
     @JsonProperty("Record_Image")
     private Object recordImage;
 
-    @JsonProperty("__review")
-    private Object review;
-
     @JsonProperty("Product_Code")
     private Object productCode;
-
-    @JsonProperty("__state")
-    private String state;
-
-    @JsonProperty("__process_flow")
-    private boolean processFlow;
 
     @JsonProperty("id")
     private String id;
@@ -66,14 +51,10 @@ public class PropertiesSearchDetails {
     @JsonProperty("Property_Listing_Tags")
     private List<Object> propertyListingTags;
 
-    @JsonProperty("__approved")
-    private boolean approved;
 
     @JsonProperty("Status")
     private List<String> status;
 
-    @JsonProperty("__approval")
-    private Approval approval;
 
     @JsonProperty("Modified_Time")
     private LocalDateTime modifiedTime;
@@ -84,8 +65,6 @@ public class PropertiesSearchDetails {
     @JsonProperty("Created_Time")
     private LocalDateTime createdTime;
 
-    @JsonProperty("__followed")
-    private boolean followed;
 
     @JsonProperty("Product_Name")
     private String productName;
@@ -93,11 +72,6 @@ public class PropertiesSearchDetails {
     @JsonProperty("Bank_Approved")
     private List<String> bankApproved;
 
-    @JsonProperty("__taxable")
-    private boolean taxable;
-
-    @JsonProperty("__editable")
-    private boolean editable;
 
     @JsonProperty("Property_Type")
     private List<String> propertyType;
@@ -111,9 +85,6 @@ public class PropertiesSearchDetails {
     @JsonProperty("Owner_Details")
     private Object ownerDetails;
 
-    @JsonProperty("__orchestration")
-    private Object orchestration;
-
     @JsonProperty("Property_ID")
     private String propertyID;
 
@@ -122,9 +93,6 @@ public class PropertiesSearchDetails {
 
     @JsonProperty("Area")
     private String area;
-
-    @JsonProperty("__in_merge")
-    private boolean inMerge;
 
     @JsonProperty("State")
     private Object countryState;
@@ -138,22 +106,12 @@ public class PropertiesSearchDetails {
     @JsonProperty("Tag")
     private List<Object> tag;
 
-    @JsonProperty("__approval_state")
-    private String approvalState;
-
-    @JsonProperty("Sales_End_Date")
-    private String salesEndDate;
 
     @JsonProperty("Unit_Price")
     private int unitPrice;
 
-    @JsonProperty("Taxable")
-    private boolean propertyTaxable;
-
     @JsonProperty("PID")
     private String pID;
-
-    //private FloorPlan floorPlan;
 
     Map<String, Map<String, Type>> floorPlan;
 

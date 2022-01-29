@@ -17,10 +17,14 @@ SEARCH_SCHEMA = "SearchSchema"
 config_data = {}
 sync_property = []
 
+print(" ")
+print(datetime.now())
+print(" ")
+
 
 def load_config_details():
     global config_data
-    with open(os.path.join(os.path.abspath("./"), "config.json")) as file:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "config.json")) as file:
         config_data = json.load(file)
 
     last_generate_token_time = config_data["last_generate_token_time"]
@@ -68,14 +72,14 @@ def refresh_token():
 
 
 def get_mongo_client(collection_name='Properties'):
-    user_name = "nearbyse"
-    password = "Kuchkito420"
-    client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
-    # user_name = "nearbysecuber"
-    # password = "Kuchkitho420"
-    # client = pymongo.MongoClient(
-    #     "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
-    #         'port') + "/?authSource=admin")
+#     user_name = "nearbyse"
+#     password = "Kuchkito420"
+#     client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    user_name = "nearbysecuber"
+    password = "Kuchkitho420"
+    client = pymongo.MongoClient(
+        "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
+            'port') + "/?authSource=admin")
     database = client["CuberReality"]
     collection = database[collection_name]
     return collection
@@ -126,7 +130,7 @@ def sync_properties_data_from_crm_to_db():
     mongo_properties = get_mongo_data(collection)
     global sync_property
     for property_data in properties:
-        if property_data.get("Product_Active") == True:
+        if property_data.get("Product_Active"):
             id = property_data["id"]
             sync_property.append(id)
             property_data = append_extra_data(property_data, mongo_properties.get(id))
@@ -186,9 +190,9 @@ def process_github_config():
                                          key.strip() + "_ProjectSpecs", key.strip() + ".json")
                 text_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
                                          key.strip() + "_ProjectSpecs", key.strip() + ".txt")
-                video_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
-                                          key.strip() + "_Videos", "video.json")
-                parse_file(key.strip(), json_path, text_path, video_path)
+                # video_path = os.path.join(os.path.abspath("./"), "cuberreality-config", key.strip(),
+                #                           key.strip() + "_Videos", "video.json")
+                parse_file(key.strip(), json_path, text_path)
 
 
 def image_processing(json_data):
@@ -223,7 +227,7 @@ def add_base_image_url(base_url, data):
     return data_list
 
 
-def parse_file(property_id, json_path, text_path, video_path):
+def parse_file(property_id, json_path, text_path):
     complete_json = {}
 
     try:
@@ -248,18 +252,6 @@ def parse_file(property_id, json_path, text_path, video_path):
     except Exception as ex:
         print(str(ex), text_path)
 
-    try:
-        with open(video_path, "r") as file:
-            video_json_data = json.load(file)
-            complete_json["video_urls"] = [] if video_json_data.get("video_urls") is None else video_json_data.get("video_urls")
-
-
-    except FileNotFoundError as ex:
-        print("Error has occurred while downloading & processing attachment " + video_path + ". error " + str(ex))
-
-    except Exception as ex:
-        print(str(ex), text_path)
-
     collection = get_mongo_client(PROPERTIES_SCHEMA)
     res = collection.update_one({"Property_ID": property_id}, {"$set": complete_json}, ).raw_result
     print(res)
@@ -268,19 +260,19 @@ def parse_file(property_id, json_path, text_path, video_path):
 def create_search_space():
     search_data = {"Country": []}
     collection = get_mongo_client(PROPERTIES_SCHEMA)
-    x = collection.find({}, {'Country': 1, 'State': 1, 'Area': 1, 'City': 1, 'Sub_Area': 1, 'Address': 1, 'id': 1})
+    x = collection.find({}, {'Country': 1, 'State': 1, 'Area': 1, 'City': 1, 'Sub_Area': 1, 'Address': 1, 'id': 1, 'Taxable':1, 'Product_Active':1})
     for ids in x:
-        Country, State, Area, City, Sub_Area, Address, Id = format_search_data(
-            ids["Country"].capitalize()), format_search_data(
-            ids["State"].capitalize()), format_search_data(ids["Area"].capitalize()), format_search_data(
-            ids["City"].capitalize()), format_search_data(
-            ids["Sub_Area"].capitalize()), format_search_data(ids["Address"].capitalize()), format_search_data(
-            ids["id"])
+        Country, State, Area, City, Sub_Area, Address, Id, Focused, Product_Active = format_search_data(
+            ids["Country"]).capitalize(), format_search_data(
+            ids["State"]).capitalize(), format_search_data(ids["Area"]).capitalize(), format_search_data(
+            ids["City"]).capitalize(), format_search_data(
+            ids["Sub_Area"]).capitalize(), format_search_data(ids["Address"]).capitalize(), ids["id"], ids["Taxable"], ids["Product_Active"]
 
-        if Country is None or State is None:
+        if "None" in [Country, State, Area, City, Sub_Area, Address, Id]:
+            print("Address details is None", Id, Country, State, Area, City, Sub_Area, Address)
             continue
         else:
-            property_details = {"Id": Id, "Address": Address}
+            property_details = {"Id": Id, "Address": Address,"Focused": Focused, "Product_Active":Product_Active}
             country_index = isExist(search_data["Country"], "Country_Name", Country)
             if country_index is not -1:
                 state_index = isExist(search_data["Country"][country_index]["State"], "State_Name", State)
@@ -335,14 +327,16 @@ def isExist(data, key, Value):
 
 def format_search_data(data):
     if data is None:
-        return "no_data"
+        return "None"
     return "_".join(data.split(" ")).strip()
 
 
 def config_repo_clone():
+    folder_path = os.path.dirname(os.path.realpath(__file__))
+
     if platform.system().lower() == "linux":
-        print("deleting " + os.path.join(os.getcwd(), CONFIG_REPO_NAME) + " folder")
-        config_folder_delete = ['rm', '-rf', os.path.join(os.getcwd(), CONFIG_REPO_NAME)]
+        print("deleting " + os.path.join(folder_path, CONFIG_REPO_NAME) + " folder")
+        config_folder_delete = ['rm', '-rf', os.path.join(folder_path, CONFIG_REPO_NAME)]
         config_folder_delete_query = Popen(config_folder_delete, stdout=PIPE, stderr=PIPE)
         status, error = config_folder_delete_query.communicate()
 
@@ -352,12 +346,13 @@ def config_repo_clone():
     git_command = ['git', 'clone', 'https://' + config_data.get(
         'github_token') + ':x-oauth-basic@github.com/cuberreality/cuberreality-config']
 
+    os.chdir(folder_path)
     git_query = Popen(git_command, stdout=PIPE, stderr=PIPE)
     git_status, error = git_query.communicate()
     print(git_status, error)
     if platform.system().lower() == "linux":
         print("changing folder permissions")
-        subprocess.call(['chmod', '-R', '777', os.path.join(os.path.abspath("./"), CONFIG_REPO_NAME)])
+        subprocess.call(['chmod', '-R', '777', os.path.join(folder_path, CONFIG_REPO_NAME)])
 
 
 def main():
@@ -369,6 +364,7 @@ def main():
     create_search_space()
     config_repo_clone()
     process_github_config()
+
 
 main()
 

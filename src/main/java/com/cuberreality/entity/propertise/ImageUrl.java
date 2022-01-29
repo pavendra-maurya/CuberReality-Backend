@@ -34,6 +34,9 @@ public class ImageUrl {
     @Field("Videos_url")
     private List<String> videosUrl;
 
+    @Field("Highlight_url")
+    private List<String> highlightUrl;
+
     @Field("displayImageUrls")
     public List<String> displayImageUrls;
 }

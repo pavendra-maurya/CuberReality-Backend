@@ -35,6 +35,9 @@ public class ImageUrl {
     @JsonProperty("Videos_url")
     private List<String> videosUrl;
 
+    @JsonProperty("Highlight_url")
+    private List<String> highlightUrl;
+
     @JsonProperty("displayImageUrls")
     public List<String> displayImageUrls;
 }

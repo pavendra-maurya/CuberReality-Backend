@@ -1,7 +1,6 @@
 package com.cuberreality.service.impl;
 
 
-import com.cuberreality.entity.leads.LeadsSchema;
 import com.cuberreality.entity.propertise.PropertiesSchema;
 import com.cuberreality.entity.propertisesearch.*;
 import com.cuberreality.entity.user.VisitedProperties;
@@ -10,7 +9,6 @@ import com.cuberreality.mapper.PropertiesMapper;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
 import com.cuberreality.repository.VisitedPropertiesRepository;
-import com.cuberreality.request.leads.UpdateLeadModel;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
 import com.cuberreality.response.propertise.PropertiesSearchDetails;
 import com.cuberreality.response.propertise.PropertiesSearchResponse;
@@ -25,7 +23,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,13 +64,14 @@ public class PropertiesServiceImpl implements PropertiesService {
         PropertiesSearchResponse response = new PropertiesSearchResponse();
 
         List<String> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
+
         List<PropertiesSearchDetails> regularPropertiesSearch = new ArrayList<>();
         List<PropertiesSearchDetails> focusedPropertiesSearch = new ArrayList<>();
-        for (String id : propertyIdList) {
 
+        for (String id : propertyIdList) {
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
-            if(propertiesSchema.isPresent()){
-                PropertiesSchema  schema = propertiesSchema.get();
+            if (propertiesSchema.isPresent()) {
+                PropertiesSchema schema = propertiesSchema.get();
                 if (schema.isPropertyTaxable())
                     focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
                 else
@@ -85,60 +83,61 @@ public class PropertiesServiceImpl implements PropertiesService {
         return response;
     }
 
-    private List<String> getPropertyIds(List<SearchSchema> searchSchema, PropertiesSearchRequest propertiesSearchRequest) {
+    private List<String> getPropertyIds(List<SearchSchema> searchSchema,
+                                        PropertiesSearchRequest propertiesSearchRequest) {
 
-        List<Country> countryList = searchSchema.get(0).getCountry();
-        Optional<Country> country = countryList.stream()
+        List<City> cityList = searchSchema.get(0).getCountry().stream()
                 .filter(obj -> obj.getCountryName().equalsIgnoreCase(propertiesSearchRequest.getCountry()))
-                .findFirst();
-
-        List<State> stateList = new ArrayList<>();
-        if (country.isPresent())
-            stateList = country.get().getState();
-
-
-        Optional<State> state = stateList.stream()
+                .flatMap(list -> list.getState().stream())
                 .filter(obj -> obj.getStateName().equalsIgnoreCase(propertiesSearchRequest.getState()))
-                .findFirst();
-
-        List<City> cityList = new ArrayList<>();
-        if (state.isPresent())
-            cityList = state.get().getCity();
-
-        Optional<City> city = cityList.stream()
-                .filter(obj -> obj.getCityName().equalsIgnoreCase(propertiesSearchRequest.getCity()))
-                .findFirst();
-
-        List<SubArea> subAreasList = new ArrayList<>();
-        if (city.isPresent())
-            subAreasList = city.get().getSubArea();
-
-
-        List<SubArea> subArea = subAreasList.stream()
-                .filter(subAreaMongo -> propertiesSearchRequest.getSubAreaList().stream()
-                        .anyMatch(reqSubArea ->
-                                reqSubArea.equalsIgnoreCase(subAreaMongo.getSubAreaName())))
+                .flatMap(list -> list.getCity().stream())
+                .filter(city -> city.getCityName().equalsIgnoreCase(propertiesSearchRequest.getCity()))
                 .collect(Collectors.toList());
 
 
-        List<Area> areasList = new ArrayList<>();
-        subArea.stream().forEach(subAreaObj->areasList.addAll(subAreaObj.getArea()));
+        Set<String> propertyIds = new HashSet<>();
 
 
+        if (propertiesSearchRequest.isFocusedPropertyBasedOnCity())
+            propertyIds.addAll(cityList.stream()
+                    .flatMap(obj -> obj.getSubArea().stream())
+                    .flatMap(obj -> obj.getArea().stream())
+                    .flatMap(obj -> obj.getPropertyData().stream())
+                    .filter(PropertyData::isActive)
+                    .filter(PropertyData::isFocused)
+                    .map(PropertyData::getId)
+                    .collect(Collectors.toSet()));
 
+        if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("city"))
+            propertyIds.addAll(cityList.stream()
+                    .flatMap(obj -> obj.getSubArea().stream())
+                    .flatMap(obj -> obj.getArea().stream())
+                    .flatMap(obj -> obj.getPropertyData().stream())
+                    .filter(PropertyData::isActive)
+                    .map(PropertyData::getId)
+                    .collect(Collectors.toSet()));
 
-        List<PropertyData> propertyDataList = new ArrayList<>();
-        for (Area area : areasList) {
-            propertyDataList.addAll(area.getPropertyData());
+        if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("area")) {
+            propertyIds.addAll(cityList.stream()
+                    .flatMap(list -> list.getSubArea().stream())
+                    .flatMap(list -> list.getArea().stream())
+                    .filter(obj -> propertiesSearchRequest.getAreaList().contains(obj.getAreaName()))
+                    .flatMap(obj -> obj.getPropertyData().stream())
+                    .filter(PropertyData::isActive)
+                    .map(PropertyData::getId).collect(Collectors.toSet()));
         }
 
-        List<String> propertyIdList = new ArrayList<>();
+        if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("subArea")) {
+            propertyIds.addAll(cityList.stream()
+                    .flatMap(list -> list.getSubArea().stream())
+                    .filter(obj -> propertiesSearchRequest.getSubAreaList().contains(obj.getSubAreaName()))
+                    .flatMap(list -> list.getArea().stream())
+                    .flatMap(obj -> obj.getPropertyData().stream())
+                    .filter(PropertyData::isActive)
+                    .map(PropertyData::getId).collect(Collectors.toSet()));
+        }
 
-        for (PropertyData propertyData : propertyDataList)
-            propertyIdList.add(propertyData.getId());
-
-        return propertyIdList;
-
+        return new ArrayList<>(propertyIds);
     }
 
     @Override
@@ -153,8 +152,8 @@ public class PropertiesServiceImpl implements PropertiesService {
 
             if (visitedProperties.isPresent()) {
                 newVisitedProperties = visitedProperties.get();
-               // newVisitedProperties.setVisitCount(newVisitedProperties.getVisitCount() + 1);
-                update(newVisitedProperties.getPropertyId(),newVisitedProperties.getVisitCount());
+                // newVisitedProperties.setVisitCount(newVisitedProperties.getVisitCount() + 1);
+                update(newVisitedProperties.getPropertyId(), newVisitedProperties.getVisitCount());
             } else {
                 newVisitedProperties = new VisitedProperties();
                 newVisitedProperties.setPropertyId(property_id);
@@ -170,11 +169,11 @@ public class PropertiesServiceImpl implements PropertiesService {
         throw new RecordNotFoundException("Given Property id does not exist");
     }
 
-    public VisitedProperties update(String id, int count){
+    public VisitedProperties update(String id, int count) {
         Query query = new Query();
         query.addCriteria(Criteria.where("property_id").is(id));
         Update update = new Update();
-        update.set("visit_count", count+1);
+        update.set("visit_count", count + 1);
 
         return mongoTemplate.findAndModify(query, update, VisitedProperties.class);
     }
@@ -192,17 +191,9 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public PropertyAreaResponse getSearchAreas() {
         PropertyAreaResponse propertyAreaResponse = new PropertyAreaResponse();
-        Map<String, PropertyAreaDetails> searchDetailsMap =null;
+        Map<String, PropertyAreaDetails> searchDetailsMap = null;
 
-
-//        if(searchDetailsStaticMap!=null){
-//            searchDetailsMap=searchDetailsStaticMap;
-//        }else {
-//            searchDetailsMap= getStringPropertyAreaDetailsMap();
-//        }
-
-
-        searchDetailsMap= getStringPropertyAreaDetailsMap();
+        searchDetailsMap = getStringPropertyAreaDetailsMap();
 
         propertyAreaResponse.setPropertyAreaResponse(searchDetailsMap);
         return propertyAreaResponse;
@@ -212,40 +203,33 @@ public class PropertiesServiceImpl implements PropertiesService {
     private Map<String, PropertyAreaDetails> getStringPropertyAreaDetailsMap() {
         List<SearchSchema> searchSchemas = searchRepository.findAll();
 
-        Map<String , PropertyAreaDetails> searchDetailsMap = new HashMap<>();
+        Map<String, PropertyAreaDetails> searchDetailsMap = new HashMap<>();
 
-        for(Country country :searchSchemas.get(0).getCountry()){
-
-            for(State state :country.getState()){
-
-                for(City city :state.getCity()){
-
+        for (Country country : searchSchemas.get(0).getCountry()) {
+            for (State state : country.getState()) {
+                for (City city : state.getCity()) {
                     PropertyAreaDetails propertyAreaDetails = new PropertyAreaDetails();
                     propertyAreaDetails.setCountry(country.getCountryName());
                     propertyAreaDetails.setState(state.getStateName());
-                      String cityName=city.getCityName();
-                    List subAreaList= new ArrayList();
+                    String cityName = city.getCityName();
 
-                  for(SubArea subArea:city.getSubArea()){
-                      subAreaList.add(subArea.getSubAreaName());
+                    List<String> subAreaList = city.getSubArea().stream()
+                            .map(SubArea::getSubAreaName)
+                            .collect(Collectors.toList());
 
-                  }
-                   // propertyAreaDetails.setSubAreList(subAreaList);
-                  if(searchDetailsMap.containsKey(cityName)) {
-                      List<String> subAreaListOld = searchDetailsMap.get(cityName).getSubAreList();
-                      subAreaList.addAll(subAreaListOld);
+                    Set<String> areaList = city.getSubArea().stream()
+                            .flatMap(subArea -> subArea.getArea().stream())
+                            .map(Area::getAreaName)
+                            .collect(Collectors.toSet());
 
-                  }
                     propertyAreaDetails.setSubAreList(subAreaList);
-
-                    searchDetailsMap.put(cityName,propertyAreaDetails);
-
+                    propertyAreaDetails.setAreList(new ArrayList<>(areaList));
+                    searchDetailsMap.put(cityName, propertyAreaDetails);
 
 
                 }
 
             }
-
 
 
         }

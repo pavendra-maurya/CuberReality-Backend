@@ -10,4 +10,5 @@ public class PropertyAreaDetails {
     String state;
     String country;
     List<String> subAreList;
+    List<String> areList;
 }
