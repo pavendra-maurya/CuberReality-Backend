@@ -13,6 +13,7 @@ PROPERTIES_SCHEMA = "PropertiesSchema"
 LEADS_SCHEMA = "LeadsSchema"
 USER_PROFILE_SCHEMA = "UserProfilesSchema"
 OCCUPATIONS_SCHEMA = "OccupationsSchema"
+REFER_LEADS_SCHEMA = "ReferLeadsSchema"
 SEARCH_SCHEMA = "SearchSchema"
 config_data = {}
 sync_property = []
@@ -72,9 +73,9 @@ def refresh_token():
 
 
 def get_mongo_client(collection_name='Properties'):
-#     user_name = "nearbyse"
-#     password = "Kuchkito420"
-#     client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    # user_name = "nearbyse"
+    # password = "Kuchkito420"
+    # client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
     user_name = "nearbysecuber"
     password = "Kuchkitho420"
     client = pymongo.MongoClient(
@@ -140,13 +141,23 @@ def sync_properties_data_from_crm_to_db():
 
 def sync_leads_data_from_crm_to_db():
     lead_data = execute_api(config_data.get("crm_leads_path"), "GET")
-    collection = get_mongo_client(LEADS_SCHEMA)
-    mongo_lead_data = get_mongo_data(collection)
+    lead_collection = get_mongo_client(LEADS_SCHEMA)
+    referral_collection = get_mongo_client(REFER_LEADS_SCHEMA)
+    mongo_lead_data = get_mongo_data(lead_collection)
+    mongo_referal_data = get_mongo_data(referral_collection)
     for lead in lead_data:
         id = lead["id"]
-        lead = append_extra_data(lead, mongo_lead_data.get(id))
-        update = collection.replace_one({"id": id}, lead, upsert=True)
-        print(update.raw_result)
+        if lead["Pipeline"] == "Property Purchase":
+            lead = append_extra_data(lead, mongo_lead_data.get(id))
+            update = lead_collection.replace_one({"id": id}, lead, upsert=True)
+            print(update.raw_result)
+        elif lead["Pipeline"] == "Property Listing":
+            lead = append_extra_data(lead, mongo_referal_data.get(id))
+            update = referral_collection.replace_one({"id": id}, lead, upsert=True)
+            print(update.raw_result)
+        else:
+            print("does not find the Pipeline data schema of pipeline "+lead["Pipeline"] )
+
 
 
 def sync_occupations_data():
@@ -208,12 +219,14 @@ def image_processing(json_data):
                                                                                     "imageUrls"])
 
     displayImageUrls = []
+    FocusedImg_url = json_data["imageUrl"]["focusedImg_url"]
     ProjectImages_url = json_data["imageUrl"]["ProjectImages_url"]
     UnitPhotosUrl = json_data["imageUrl"]["UnitPhotosUrl"]
     MasterPlan_url = json_data["imageUrl"]["MasterPlan_url"]
+    displayImageUrls.extend(FocusedImg_url)
+    displayImageUrls.extend(MasterPlan_url)
     displayImageUrls.extend(ProjectImages_url)
     displayImageUrls.extend(UnitPhotosUrl)
-    displayImageUrls.extend(MasterPlan_url)
     json_data["imageUrl"]["displayImageUrls"] = displayImageUrls
 
     return json_data
@@ -270,6 +283,8 @@ def create_search_space():
 
         if "None" in [Country, State, Area, City, Sub_Area, Address, Id]:
             print("Address details is None", Id, Country, State, Area, City, Sub_Area, Address)
+            continue
+        elif Product_Active is False:
             continue
         else:
             property_details = {"Id": Id, "Address": Address,"Focused": Focused, "Product_Active":Product_Active}

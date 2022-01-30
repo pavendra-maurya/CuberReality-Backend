@@ -63,19 +63,30 @@ public class PropertiesServiceImpl implements PropertiesService {
 
         PropertiesSearchResponse response = new PropertiesSearchResponse();
 
-        List<String> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
+        List<List<String>> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
+
+        List<String> regularPropertiesIds = propertyIdList.get(1);
+        List<String> focusedPropertiesIds = propertyIdList.get(0);
 
         List<PropertiesSearchDetails> regularPropertiesSearch = new ArrayList<>();
         List<PropertiesSearchDetails> focusedPropertiesSearch = new ArrayList<>();
 
-        for (String id : propertyIdList) {
+        for (String id : regularPropertiesIds) {
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
             if (propertiesSchema.isPresent()) {
                 PropertiesSchema schema = propertiesSchema.get();
-                if (schema.isPropertyTaxable())
-                    focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
-                else
-                    regularPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                regularPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                if(!propertiesSearchRequest.isFocusedPropertyBasedOnCity()){
+                    if(schema.isPropertyTaxable())
+                        focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                }
+            }
+        }
+        for (String id : focusedPropertiesIds) {
+            Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
+            if (propertiesSchema.isPresent()) {
+                PropertiesSchema schema = propertiesSchema.get();
+                focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
             }
         }
         response.setFocusedProperties(focusedPropertiesSearch);
@@ -83,7 +94,7 @@ public class PropertiesServiceImpl implements PropertiesService {
         return response;
     }
 
-    private List<String> getPropertyIds(List<SearchSchema> searchSchema,
+    private List<List<String>> getPropertyIds(List<SearchSchema> searchSchema,
                                         PropertiesSearchRequest propertiesSearchRequest) {
 
         List<City> cityList = searchSchema.get(0).getCountry().stream()
@@ -96,48 +107,53 @@ public class PropertiesServiceImpl implements PropertiesService {
 
 
         Set<String> propertyIds = new HashSet<>();
+        List<String> normalProperty = new ArrayList<>();
 
+        List<String> focusProperty = new ArrayList<>();
 
         if (propertiesSearchRequest.isFocusedPropertyBasedOnCity())
-            propertyIds.addAll(cityList.stream()
+            focusProperty = cityList.stream()
                     .flatMap(obj -> obj.getSubArea().stream())
                     .flatMap(obj -> obj.getArea().stream())
                     .flatMap(obj -> obj.getPropertyData().stream())
                     .filter(PropertyData::isActive)
                     .filter(PropertyData::isFocused)
                     .map(PropertyData::getId)
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toList());
 
         if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("city"))
-            propertyIds.addAll(cityList.stream()
+            normalProperty = cityList.stream()
                     .flatMap(obj -> obj.getSubArea().stream())
                     .flatMap(obj -> obj.getArea().stream())
                     .flatMap(obj -> obj.getPropertyData().stream())
                     .filter(PropertyData::isActive)
                     .map(PropertyData::getId)
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toList());
 
         if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("area")) {
-            propertyIds.addAll(cityList.stream()
+            normalProperty =  cityList.stream()
                     .flatMap(list -> list.getSubArea().stream())
                     .flatMap(list -> list.getArea().stream())
                     .filter(obj -> propertiesSearchRequest.getAreaList().contains(obj.getAreaName()))
                     .flatMap(obj -> obj.getPropertyData().stream())
                     .filter(PropertyData::isActive)
-                    .map(PropertyData::getId).collect(Collectors.toSet()));
+                    .map(PropertyData::getId).collect(Collectors.toList());
         }
 
         if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("subArea")) {
-            propertyIds.addAll(cityList.stream()
+            normalProperty =  cityList.stream()
                     .flatMap(list -> list.getSubArea().stream())
                     .filter(obj -> propertiesSearchRequest.getSubAreaList().contains(obj.getSubAreaName()))
                     .flatMap(list -> list.getArea().stream())
                     .flatMap(obj -> obj.getPropertyData().stream())
                     .filter(PropertyData::isActive)
-                    .map(PropertyData::getId).collect(Collectors.toSet()));
+                    .map(PropertyData::getId).collect(Collectors.toList());
         }
 
-        return new ArrayList<>(propertyIds);
+        List<List<String>> data = new ArrayList<>();
+        data.add(focusProperty);
+        data.add(normalProperty);
+        return  data;
     }
 
     @Override
