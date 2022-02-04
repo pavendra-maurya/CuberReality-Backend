@@ -19,7 +19,8 @@ public class AppConfig {
 	private String auth_token;
 	private String register_phone_number;
 	private String reseller_notification_server_key;
-	private Integer reseller_app_version;
+	private Integer soft_app_update_version;
+	private Integer hard_app_update_version;
 	private  String crm_refresh_token;
 	private  String crm_client_id;
 	private String crm_client_secret;

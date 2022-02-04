@@ -8,7 +8,12 @@ import lombok.Data;
 @AllArgsConstructor
 public class VersionResponse {
 
-    @JsonProperty("version")
-    private int version;
+    @JsonProperty("soft_update_version")
+    private int softUpdateVersion;
+
+    @JsonProperty("hard_update_version")
+    private int hardUpdateVersion;
+
+
 
 }

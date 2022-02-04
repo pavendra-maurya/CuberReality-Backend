@@ -50,7 +50,6 @@ public class LoginResource {
 
     @RequestMapping(method = RequestMethod.PUT,value = "/device-token")
     public ResponseEntity<?> updateDeviceToken(@RequestBody DeviceTokenRequest deviceToken) {
-
         return  new ResponseEntity<>(new BaseResponse<>(userLoginService.updateDeviceToken(deviceToken), ""), HttpStatus.OK);
     }
 

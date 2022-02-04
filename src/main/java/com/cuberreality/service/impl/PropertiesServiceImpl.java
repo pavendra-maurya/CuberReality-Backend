@@ -10,10 +10,7 @@ import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
 import com.cuberreality.repository.VisitedPropertiesRepository;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
-import com.cuberreality.response.propertise.PropertiesSearchDetails;
-import com.cuberreality.response.propertise.PropertiesSearchResponse;
-import com.cuberreality.response.propertise.PropertyAreaDetails;
-import com.cuberreality.response.propertise.PropertyAreaResponse;
+import com.cuberreality.response.propertise.*;
 import com.cuberreality.service.PropertiesService;
 import com.cuberreality.util.ApiClient;
 import lombok.extern.slf4j.Slf4j;
@@ -68,17 +65,17 @@ public class PropertiesServiceImpl implements PropertiesService {
         List<String> regularPropertiesIds = propertyIdList.get(1);
         List<String> focusedPropertiesIds = propertyIdList.get(0);
 
-        List<PropertiesSearchDetails> regularPropertiesSearch = new ArrayList<>();
-        List<PropertiesSearchDetails> focusedPropertiesSearch = new ArrayList<>();
+        List<PropertiesSearchDetailsAppResponse> regularPropertiesSearch = new ArrayList<>();
+        List<PropertiesSearchDetailsAppResponse> focusedPropertiesSearch = new ArrayList<>();
 
         for (String id : regularPropertiesIds) {
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
             if (propertiesSchema.isPresent()) {
                 PropertiesSchema schema = propertiesSchema.get();
-                regularPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                regularPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
                 if(!propertiesSearchRequest.isFocusedPropertyBasedOnCity()){
                     if(schema.isPropertyTaxable())
-                        focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                        focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
                 }
             }
         }
@@ -86,7 +83,7 @@ public class PropertiesServiceImpl implements PropertiesService {
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
             if (propertiesSchema.isPresent()) {
                 PropertiesSchema schema = propertiesSchema.get();
-                focusedPropertiesSearch.add(propertiesMapper.toPropertiesResponse(schema));
+                focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
             }
         }
         response.setFocusedProperties(focusedPropertiesSearch);

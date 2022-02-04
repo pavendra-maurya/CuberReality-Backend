@@ -19,6 +19,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public VersionResponse getResellerVersion() {
 
-        return new VersionResponse(appConfig.getReseller_app_version());
+        return new VersionResponse(appConfig.getSoft_app_update_version(),
+                appConfig.getHard_app_update_version() );
     }
 }

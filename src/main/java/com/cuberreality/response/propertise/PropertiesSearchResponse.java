@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class PropertiesSearchResponse {
 
-    private List<PropertiesSearchDetails> regularProperties;
+    private List<PropertiesSearchDetailsAppResponse> regularProperties;
 
-    private List<PropertiesSearchDetails> focusedProperties;
+    private List<PropertiesSearchDetailsAppResponse> focusedProperties;
 }

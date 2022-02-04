@@ -15,7 +15,8 @@ constants:
   auth_token: 8d6f7eb833c7d9344d92ea36dc9161e2
   register_phone_number: +16787261905
   reseller_notification_server_key: key=AAAAtwOmtzc:APA91bHAOpuP8ubYFtwoQpOzLFZyLe1VjFqipyBAqPc3-DIA8XGKnj223TUXtMPIKTtvAUObVaLkuF80VPPYGchGzvC9pM4tvMZ1zC2TTZawh6pQhN9CUHRx0J4lOzm9PZFS_E2-m_1s
-  reseller_app_version: 4200
+  soft_app_update_version: 4200
+  hard_app_update_version: 4100
   crm_refresh_token: 1000.9badc856a46e840bb7b8061f9bb1f7ff.06160d061a7bfe6d67d79b6b6b8facaf
   crm_client_id: 1000.DJ1HFBUXXQ8YQUO4CH5KL5PB2KPZAM
   crm_client_secret: 694014c68fdff36d4cae0d420b581e700f1f88b5da
