@@ -131,7 +131,7 @@ def sync_properties_data_from_crm_to_db():
     mongo_properties = get_mongo_data(collection)
     global sync_property
     for property_data in properties:
-        if property_data.get("Product_Active"):
+        if property_data.get("Sync"):
             id = property_data["id"]
             sync_property.append(id)
             property_data = append_extra_data(property_data, mongo_properties.get(id))
