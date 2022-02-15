@@ -60,6 +60,9 @@ public class PropertiesServiceImpl implements PropertiesService {
 
         PropertiesSearchResponse response = new PropertiesSearchResponse();
 
+        if(getCityMapping().get(propertiesSearchRequest.getCity()) != null)
+            propertiesSearchRequest.setCity(getCityMapping().get(propertiesSearchRequest.getCity()));
+
         List<List<String>> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
 
         List<String> regularPropertiesIds = propertyIdList.get(1);
@@ -73,8 +76,8 @@ public class PropertiesServiceImpl implements PropertiesService {
             if (propertiesSchema.isPresent()) {
                 PropertiesSchema schema = propertiesSchema.get();
                 regularPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
-                if(!propertiesSearchRequest.isFocusedPropertyBasedOnCity()){
-                    if(schema.isPropertyTaxable())
+                if (!propertiesSearchRequest.isFocusedPropertyBasedOnCity()) {
+                    if (schema.isPropertyTaxable())
                         focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
                 }
             }
@@ -92,7 +95,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     private List<List<String>> getPropertyIds(List<SearchSchema> searchSchema,
-                                        PropertiesSearchRequest propertiesSearchRequest) {
+                                              PropertiesSearchRequest propertiesSearchRequest) {
 
         List<City> cityList = searchSchema.get(0).getCountry().stream()
                 .filter(obj -> obj.getCountryName().equalsIgnoreCase(propertiesSearchRequest.getCountry()))
@@ -128,7 +131,7 @@ public class PropertiesServiceImpl implements PropertiesService {
                     .collect(Collectors.toList());
 
         if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("area")) {
-            normalProperty =  cityList.stream()
+            normalProperty = cityList.stream()
                     .flatMap(list -> list.getSubArea().stream())
                     .flatMap(list -> list.getArea().stream())
                     .filter(obj -> propertiesSearchRequest.getAreaList().contains(obj.getAreaName()))
@@ -138,7 +141,7 @@ public class PropertiesServiceImpl implements PropertiesService {
         }
 
         if (propertiesSearchRequest.getListPropertyBasedOn().equalsIgnoreCase("subArea")) {
-            normalProperty =  cityList.stream()
+            normalProperty = cityList.stream()
                     .flatMap(list -> list.getSubArea().stream())
                     .filter(obj -> propertiesSearchRequest.getSubAreaList().contains(obj.getSubAreaName()))
                     .flatMap(list -> list.getArea().stream())
@@ -150,7 +153,7 @@ public class PropertiesServiceImpl implements PropertiesService {
         List<List<String>> data = new ArrayList<>();
         data.add(focusProperty);
         data.add(normalProperty);
-        return  data;
+        return data;
     }
 
     @Override
@@ -213,42 +216,87 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     }
 
+
     private Map<String, PropertyAreaDetails> getStringPropertyAreaDetailsMap() {
         List<SearchSchema> searchSchemas = searchRepository.findAll();
 
         Map<String, PropertyAreaDetails> searchDetailsMap = new HashMap<>();
-
         for (Country country : searchSchemas.get(0).getCountry()) {
             for (State state : country.getState()) {
                 for (City city : state.getCity()) {
+                    String cityName = city.getCityName();
+
+                    if (!getLiveCity().contains(cityName.toLowerCase()))
+                        continue;
+
+                    if (!Objects.isNull(getCityMapping().get(cityName)))
+                        cityName = getCityMapping().get(cityName);
+
                     PropertyAreaDetails propertyAreaDetails = new PropertyAreaDetails();
                     propertyAreaDetails.setCountry(country.getCountryName());
                     propertyAreaDetails.setState(state.getStateName());
-                    String cityName = city.getCityName();
 
-                    List<String> subAreaList = city.getSubArea().stream()
+                    Set<String> subAreaList = city.getSubArea().stream()
                             .map(SubArea::getSubAreaName)
-                            .collect(Collectors.toList());
+                            .collect(Collectors.toSet());
 
                     Set<String> areaList = city.getSubArea().stream()
                             .flatMap(subArea -> subArea.getArea().stream())
                             .map(Area::getAreaName)
                             .collect(Collectors.toSet());
 
-                    propertyAreaDetails.setSubAreList(subAreaList);
-                    propertyAreaDetails.setAreList(new ArrayList<>(areaList));
+                    if (searchDetailsMap.get(cityName) != null) {
+                        Set<String> availableSubArea = new HashSet<>(searchDetailsMap.get(cityName).getSubAreList());
+                        Set<String> availableArea = new HashSet<>(searchDetailsMap.get(cityName).getAreList());
+                        availableArea.addAll(areaList);
+                        availableSubArea.addAll(subAreaList);
+                        propertyAreaDetails.setSubAreList(new ArrayList<>(availableArea));
+                        propertyAreaDetails.setAreList(new ArrayList<>(availableSubArea));
+
+                    } else {
+                        propertyAreaDetails.setSubAreList(new ArrayList<>(subAreaList));
+                        propertyAreaDetails.setAreList(new ArrayList<>(areaList));
+                    }
                     searchDetailsMap.put(cityName, propertyAreaDetails);
-
-
                 }
-
             }
-
-
         }
-        return searchDetailsMap;
-
+        return addMultipleCity(searchDetailsMap);
     }
 
+
+    private Map<String, PropertyAreaDetails> addMultipleCity(Map<String, PropertyAreaDetails> searchDetailsMap) {
+
+        Map<String, PropertyAreaDetails> propertyAreaDetailsMap = new HashMap<>();
+
+        Map<String, Set<String>> listMap = new HashMap<>();
+        getCityMapping().forEach((key, value) -> {
+            listMap.computeIfAbsent(value, k -> new HashSet<>());
+            listMap.get(value).add(key);
+        });
+        listMap.forEach((key, value) -> {
+            value.forEach((city) -> {
+                propertyAreaDetailsMap.put(city, searchDetailsMap.get(key));
+            });
+
+        });
+
+        propertyAreaDetailsMap.putAll(searchDetailsMap);
+
+        return propertyAreaDetailsMap;
+    }
+
+    private Map<String, String> getCityMapping() {
+        Map<String, String> cities = new HashMap<>();
+        cities.put("Bengaluru", "Bangalore");
+        return cities;
+    }
+
+    private HashSet<String> getLiveCity() {
+        HashSet<String> cities = new HashSet<>();
+        cities.add("bangalore");
+        cities.add("bengaluru");
+        return cities;
+    }
 
 }

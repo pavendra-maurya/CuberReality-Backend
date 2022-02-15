@@ -87,10 +87,10 @@ public class NotificationServiceImp implements NotificationService {
             PhoneNum = "+91" + PhoneNum;
         }
 
-        Twilio.init(appConfig.getAccount_sid(), appConfig.getAuth_token());
+        Twilio.init(appConfig.getTwilio_account_sid(), appConfig.getTwilio_auth_token());
         Message message = Message.creator(
                         new com.twilio.type.PhoneNumber("whatsapp:" + PhoneNum),
-                        new com.twilio.type.PhoneNumber("whatsapp:" + appConfig.getRegister_phone_number()),
+                        new com.twilio.type.PhoneNumber("whatsapp:" + appConfig.getTwilio_register_phone_number()),
                         msg)
                 .create();
         System.out.println(message.getSid());
