@@ -27,7 +27,7 @@ constants:
   exotel_account_sid: cuberreality1
   exotel_account_user: d8eb0911f06fd4c6faa9d6ac754b3334e012e9f0396fd395
   exotel_auth_token: f7b4363e122ef83f1a758cc150f96b18f28e3338cce23957
-  exotel_register_phone_number: 08047092992
+  exotel_register_phone_number: CBRLTY
   reseller_notification_server_key: key=AAAAtwOmtzc:APA91bHAOpuP8ubYFtwoQpOzLFZyLe1VjFqipyBAqPc3-DIA8XGKnj223TUXtMPIKTtvAUObVaLkuF80VPPYGchGzvC9pM4tvMZ1zC2TTZawh6pQhN9CUHRx0J4lOzm9PZFS_E2-m_1s
   soft_app_update_version: 4200
   hard_app_update_version: 4100

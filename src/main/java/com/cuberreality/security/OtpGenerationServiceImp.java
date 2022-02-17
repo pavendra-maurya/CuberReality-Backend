@@ -120,7 +120,7 @@ public class OtpGenerationServiceImp implements OtpGenerationService {
         String userToken = appConfig.getExotel_auth_token();
         String accountSid = appConfig.getExotel_account_sid();
         String from = appConfig.getExotel_register_phone_number();
-        String msg = "Hi, Your login OTP for CuberReality app is  " + otp + " . Happy Reselling..";
+        String msg = "Hi, Your login OTP for CuberReality app is "+otp+" . Happy Reselling..";
 
         try {
             HttpClient client = getClient();
@@ -133,6 +133,9 @@ public class OtpGenerationServiceImp implements OtpGenerationService {
             nameValuePairs.add(new BasicNameValuePair("From", from));
             nameValuePairs.add(new BasicNameValuePair("To", PhoneNumber));
             nameValuePairs.add(new BasicNameValuePair("Body", msg));
+            nameValuePairs.add(new BasicNameValuePair("DltEntityId", "1201164369761561456"));
+            nameValuePairs.add(new BasicNameValuePair("DltTemplateId", "1207164485513787177"));
+            nameValuePairs.add(new BasicNameValuePair("Priority", "high"));
 
             post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
