@@ -54,6 +54,12 @@ public class UserProfilesSchema {
     @Field(value = "referral_code")
     private String referralCode;
 
+    @Field(value = "PreferredReseller")
+    private boolean preferredReseller;
+
+    @Field(value = "Employee")
+    private boolean isEmployee;
+
     @Field(value = "is_referral_eligible_cashback")
     private boolean isReferralEligibleCashback;
 

@@ -1,6 +1,5 @@
 package com.cuberreality.service.impl;
 
-import com.cuberreality.entity.leads.LeadsSchema;
 import com.cuberreality.entity.user.UserLogin;
 import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.error.RecordNotFoundException;
@@ -9,7 +8,6 @@ import com.cuberreality.repository.OccupationsRepository;
 import com.cuberreality.repository.UserLoginRepository;
 import com.cuberreality.repository.UserProfileRepository;
 import com.cuberreality.request.CreateUserProfileRequest;
-import com.cuberreality.request.leads.UpdateLeadModel;
 import com.cuberreality.request.user.CreateApiRequest;
 import com.cuberreality.request.user.CreateUserRequest;
 import com.cuberreality.request.user.UpdateUserRequest;
@@ -73,21 +71,21 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         UserLogin userLogin = userLoginRepository.findByPhoneNumber(mobileNumber);
         String referralCode = userLogin.getReferralCode();
+
         String userType = userLogin.getUserType();
 
         CreateUserRequest createUserRequest = userMapper.toCreateUserRequest(createUserProfileRequest);
         CreateApiRequest<CreateUserRequest> request = new CreateApiRequest<>();
         createUserRequest.setUserType(Collections.singletonList(userType));
+
         createUserRequest.setUserStatus("Active");
         createUserRequest.setMobile(mobileNumber);
         createUserRequest.setLastName("None");
         request.setCreateRequest(Collections.singletonList(createUserRequest));
-
         // Create User details in CRM
 
         String path = "/bigin/v1/Contacts";
         CreateUserApiResponse createUserApiResponse = apiClient.post(request, CreateUserApiResponse.class, path);
-
         String id = createUserApiResponse.getData().get(0).getDetails().getId();
 
         // Get user details in from CRM
@@ -95,7 +93,6 @@ public class UserProfileServiceImpl implements UserProfileService {
         String pathWithId = path + "/" + id;
         FetchUserApiResponse fetchUserApiResponse = apiClient.get(FetchUserApiResponse.class, pathWithId);
         UserDetailsApiResponse userDetailsApiResponse = fetchUserApiResponse.getData().get(0);
-
         userDetailsApiResponse.setUserUuid(userUuid);
         userDetailsApiResponse.setReferralCode(referralCode);
         userDetailsApiResponse.setReferralEligibleCashback(true);
@@ -103,7 +100,6 @@ public class UserProfileServiceImpl implements UserProfileService {
         // Save user details in local database;
         userDetailsApiResponse.setWallet(1000);
         userProfileRepository.save(userMapper.toUserProfileSchema(userDetailsApiResponse));
-
         userLogin.setUserRegistered(false);
         userLoginRepository.save(userLogin);
 

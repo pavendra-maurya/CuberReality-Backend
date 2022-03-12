@@ -3,15 +3,19 @@ package com.cuberreality.service.impl;
 
 import com.cuberreality.entity.propertise.PropertiesSchema;
 import com.cuberreality.entity.propertisesearch.*;
+import com.cuberreality.entity.user.UserProfilesSchema;
 import com.cuberreality.entity.user.VisitedProperties;
 import com.cuberreality.error.RecordNotFoundException;
 import com.cuberreality.mapper.PropertiesMapper;
 import com.cuberreality.repository.PropertiesRepository;
 import com.cuberreality.repository.SearchRepository;
+import com.cuberreality.repository.UserProfileRepository;
 import com.cuberreality.repository.VisitedPropertiesRepository;
 import com.cuberreality.request.propertise.PropertiesSearchRequest;
 import com.cuberreality.response.propertise.*;
+import com.cuberreality.response.user.UserJwtTokenValidationResponse;
 import com.cuberreality.service.PropertiesService;
+import com.cuberreality.service.UserLoginService;
 import com.cuberreality.util.ApiClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +48,13 @@ public class PropertiesServiceImpl implements PropertiesService {
     private VisitedPropertiesRepository visitedPropertiesRepository;
 
     @Autowired
+    private UserProfileRepository userProfileRepository;
+
+    @Autowired
     private PropertiesMapper propertiesMapper;
+
+    @Autowired
+    private UserLoginService userLoginService;
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -55,12 +65,16 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public PropertiesSearchResponse getPropertiesInSpace(PropertiesSearchRequest propertiesSearchRequest) {
 
+        UserJwtTokenValidationResponse jwtTokenValidationResponse = userLoginService.userJwtTokenValidation();
+        String userUuid = jwtTokenValidationResponse.getUuid();
+        System.out.println(userUuid);
+        UserProfilesSchema userProfilesSchema = userProfileRepository.findByUserUuid(userUuid).get();
 
         List<SearchSchema> searchSchemas = searchRepository.findAll();
 
         PropertiesSearchResponse response = new PropertiesSearchResponse();
 
-        if(getCityMapping().get(propertiesSearchRequest.getCity()) != null)
+        if (getCityMapping().get(propertiesSearchRequest.getCity()) != null)
             propertiesSearchRequest.setCity(getCityMapping().get(propertiesSearchRequest.getCity()));
 
         List<List<String>> propertyIdList = getPropertyIds(searchSchemas, propertiesSearchRequest);
@@ -75,18 +89,36 @@ public class PropertiesServiceImpl implements PropertiesService {
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
             if (propertiesSchema.isPresent()) {
                 PropertiesSchema schema = propertiesSchema.get();
-                regularPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
-                if (!propertiesSearchRequest.isFocusedPropertyBasedOnCity()) {
-                    if (schema.isPropertyTaxable())
-                        focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                if (userProfilesSchema.isEmployee()) {
+                    regularPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                    if (!propertiesSearchRequest.isFocusedPropertyBasedOnCity()) {
+                        if (schema.isPropertyTaxable())
+                            focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                    }
+                } else {
+                    if (schema.getPreferredProperty() < 1) {
+                        regularPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                        if (!propertiesSearchRequest.isFocusedPropertyBasedOnCity()) {
+                            if (schema.isPropertyTaxable())
+                                focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                        }
+                    }
                 }
+
             }
         }
         for (String id : focusedPropertiesIds) {
             Optional<PropertiesSchema> propertiesSchema = propertiesRepository.findByIdAndProductActive(id, true);
             if (propertiesSchema.isPresent()) {
                 PropertiesSchema schema = propertiesSchema.get();
-                focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                if (userProfilesSchema.isEmployee()) {
+                    focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                } else {
+                    if (schema.getPreferredProperty() < 1) {
+                        focusedPropertiesSearch.add(propertiesMapper.toPropertiesAppResponse(schema));
+                    }
+                }
+
             }
         }
         response.setFocusedProperties(focusedPropertiesSearch);
@@ -105,8 +137,6 @@ public class PropertiesServiceImpl implements PropertiesService {
                 .filter(city -> city.getCityName().equalsIgnoreCase(propertiesSearchRequest.getCity()))
                 .collect(Collectors.toList());
 
-
-        Set<String> propertyIds = new HashSet<>();
         List<String> normalProperty = new ArrayList<>();
 
         List<String> focusProperty = new ArrayList<>();
@@ -185,13 +215,12 @@ public class PropertiesServiceImpl implements PropertiesService {
         throw new RecordNotFoundException("Given Property id does not exist");
     }
 
-    public VisitedProperties update(String id, int count) {
+    public void update(String id, int count) {
         Query query = new Query();
         query.addCriteria(Criteria.where("property_id").is(id));
         Update update = new Update();
         update.set("visit_count", count + 1);
-
-        return mongoTemplate.findAndModify(query, update, VisitedProperties.class);
+        mongoTemplate.findAndModify(query, update, VisitedProperties.class);
     }
 
     @Override
@@ -207,7 +236,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public PropertyAreaResponse getSearchAreas() {
         PropertyAreaResponse propertyAreaResponse = new PropertyAreaResponse();
-        Map<String, PropertyAreaDetails> searchDetailsMap = null;
+        Map<String, PropertyAreaDetails> searchDetailsMap;
 
         searchDetailsMap = getStringPropertyAreaDetailsMap();
 
@@ -274,12 +303,7 @@ public class PropertiesServiceImpl implements PropertiesService {
             listMap.computeIfAbsent(value, k -> new HashSet<>());
             listMap.get(value).add(key);
         });
-        listMap.forEach((key, value) -> {
-            value.forEach((city) -> {
-                propertyAreaDetailsMap.put(city, searchDetailsMap.get(key));
-            });
-
-        });
+        listMap.forEach((key, value) -> value.forEach((city) -> propertyAreaDetailsMap.put(city, searchDetailsMap.get(key))));
 
         propertyAreaDetailsMap.putAll(searchDetailsMap);
 

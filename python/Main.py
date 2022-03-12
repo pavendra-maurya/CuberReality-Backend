@@ -73,14 +73,15 @@ def refresh_token():
 
 
 def get_mongo_client(collection_name='Properties'):
-    # user_name = "nearbyse"
-    # password = "Kuchkito420"
-    # client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
-    user_name = "nearbysecuber"
-    password = "Kuchkitho420"
-    client = pymongo.MongoClient(
-        "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
-            'port') + "/?authSource=admin")
+    user_name = "nearbyse"
+    password = "Kuchkito420"
+    client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    #client = pymongo.MongoClient("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false")
+    # user_name = "nearbysecuber"
+    # password = "Kuchkitho420"
+    # client = pymongo.MongoClient(
+    #     "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
+    #         'port') + "/?authSource=admin")
     database = client["CuberReality"]
     collection = database[collection_name]
     return collection
@@ -164,7 +165,7 @@ def sync_occupations_data():
     occupations_data = {
         "resellersOccupation": ["Loan Agent", "Insurance Agent", "Homemaker", "Home Loan Agent",
                                 "Mutual Fund Agent", "Financial Advisors", "Chartered accountant", "Architect",
-                                "Interior Designer", "Civil Contractor / Engineer"]
+                                "Interior Designer", "Civil Contractor / Engineer", "Others"]
     }
     collection1 = get_mongo_client(OCCUPATIONS_SCHEMA)
     collection1.drop()
@@ -382,14 +383,3 @@ def main():
 
 
 main()
-
-# app = Flask(__name__)
-
-# @app.route("/sync/crm")
-# def sync_crm():
-#     main()
-#     return "Successfully synced"
-#
-#
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=5000, debug=True)

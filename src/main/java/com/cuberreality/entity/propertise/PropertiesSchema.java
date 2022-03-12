@@ -148,6 +148,9 @@ public class PropertiesSchema {
     @Field("Unit_Price")
     private int unitPrice;
 
+    @Field("Reorder_Level")
+    private int preferredProperty;
+
     @Field("Taxable")
     private boolean propertyTaxable;
 
