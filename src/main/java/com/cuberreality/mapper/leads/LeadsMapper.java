@@ -1,8 +1,10 @@
 package com.cuberreality.mapper.leads;
 
 
+import com.cuberreality.entity.leads.InquiryLeadSchema;
 import com.cuberreality.entity.leads.LeadsSchema;
 import com.cuberreality.entity.leads.ReferLeadSchema;
+import com.cuberreality.response.leads.GetInquiryLeadResponseModel;
 import com.cuberreality.response.leads.GetLeadResponseModel;
 import com.cuberreality.response.leads.GetReferLeadResponseModel;
 import org.mapstruct.Mapper;
@@ -20,7 +22,7 @@ public interface LeadsMapper {
 
     List<GetReferLeadResponseModel> referLeadSchemasToLeads(List<ReferLeadSchema> leads);
 
-
+    List<GetInquiryLeadResponseModel> inquiryLeadSchemasToLeads(List<InquiryLeadSchema> leads);
 
     // @Mapping(source="id",target="crmLeadId")
     @Mapping(source="leadId",target="userLeadId")
@@ -34,9 +36,15 @@ public interface LeadsMapper {
     @Mapping(source="leadId",target="userLeadId")
     ReferLeadSchema getReferLeadResponseModelToReferLeadsSchema(GetReferLeadResponseModel getLeadResponseModel);
 
+    @Mapping(source="leadId",target="userLeadId")
+    InquiryLeadSchema getInquiryLeadResponseModelToInquiryLeadsSchema(GetInquiryLeadResponseModel getLeadResponseModel);
+
+
     @Mapping(source="userLeadId",target="leadId")
     GetReferLeadResponseModel getReferLeadsSchemaToLeadResponseModel(ReferLeadSchema referLeadSchema);
 
+    @Mapping(source="userLeadId",target="leadId")
+    GetInquiryLeadResponseModel getInquiryLeadsSchemaToLeadResponseModel(InquiryLeadSchema inquiryLeadSchema);
 
 
 

@@ -14,6 +14,7 @@ LEADS_SCHEMA = "LeadsSchema"
 USER_PROFILE_SCHEMA = "UserProfilesSchema"
 OCCUPATIONS_SCHEMA = "OccupationsSchema"
 REFER_LEADS_SCHEMA = "ReferLeadsSchema"
+INQUIRY_LEADS_SCHEMA = "InquiryLeadsSchema";
 SEARCH_SCHEMA = "SearchSchema"
 config_data = {}
 sync_property = []
@@ -45,7 +46,6 @@ def load_config_details():
         else:
             exit(1)
 
-
 def refresh_token():
     refresh_token = config_data.get('crm_refresh_token')
     client_id = config_data.get('crm_client_id')
@@ -71,21 +71,19 @@ def refresh_token():
         print("Access token is not generated")
         return None
 
-
 def get_mongo_client(collection_name='Properties'):
-    user_name = "nearbyse"
-    password = "Kuchkito420"
-    client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
-    #client = pymongo.MongoClient("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false")
-    # user_name = "nearbysecuber"
-    # password = "Kuchkitho420"
-    # client = pymongo.MongoClient(
-    #     "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
-    #         'port') + "/?authSource=admin")
+    # user_name = "nearbyse"
+    # password = "Kuchkito420"
+    # client = pymongo.MongoClient("mongodb://nearbyse:Kuchkito420@localhost:27017/?authSource=CuberReality")
+    # #client = pymongo.MongoClient("mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false")
+    user_name = "nearbysecuber"
+    password = "Kuchkitho420"
+    client = pymongo.MongoClient(
+        "mongodb://" + user_name + ":" + password + "@" + config_data.get('host') + ":" + config_data.get(
+            'port') + "/?authSource=admin")
     database = client["CuberReality"]
     collection = database[collection_name]
     return collection
-
 
 def execute_api(url, method, payload=None, headers=None):
     base_url = config_data.get('crm_base_url')
@@ -144,8 +142,10 @@ def sync_leads_data_from_crm_to_db():
     lead_data = execute_api(config_data.get("crm_leads_path"), "GET")
     lead_collection = get_mongo_client(LEADS_SCHEMA)
     referral_collection = get_mongo_client(REFER_LEADS_SCHEMA)
+    inquiry_collection = get_mongo_client(INQUIRY_LEADS_SCHEMA)
     mongo_lead_data = get_mongo_data(lead_collection)
-    mongo_referal_data = get_mongo_data(referral_collection)
+    mongo_referral_data = get_mongo_data(referral_collection)
+    inquiry_referral_data = get_mongo_data(inquiry_collection)
     for lead in lead_data:
         id = lead["id"]
         if lead["Pipeline"] == "Property Purchase":
@@ -153,12 +153,15 @@ def sync_leads_data_from_crm_to_db():
             update = lead_collection.replace_one({"id": id}, lead, upsert=True)
             print(update.raw_result)
         elif lead["Pipeline"] == "Property Listing":
-            lead = append_extra_data(lead, mongo_referal_data.get(id))
+            lead = append_extra_data(lead, mongo_referral_data.get(id))
             update = referral_collection.replace_one({"id": id}, lead, upsert=True)
+            print(update.raw_result)
+        elif lead["Pipeline"] == "Inquiry Leads":
+            lead = append_extra_data(lead, inquiry_referral_data.get(id))
+            update = inquiry_collection.replace_one({"id": id}, lead, upsert=True)
             print(update.raw_result)
         else:
             print("does not find the Pipeline data schema of pipeline "+lead["Pipeline"] )
-
 
 
 def sync_occupations_data():
@@ -370,7 +373,6 @@ def config_repo_clone():
         print("changing folder permissions")
         subprocess.call(['chmod', '-R', '777', os.path.join(folder_path, CONFIG_REPO_NAME)])
 
-
 def main():
     load_config_details()
     sync_occupations_data()
@@ -380,6 +382,5 @@ def main():
     create_search_space()
     config_repo_clone()
     process_github_config()
-
 
 main()
