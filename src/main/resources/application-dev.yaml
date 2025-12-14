@@ -7,8 +7,8 @@ spring:
       database: CuberReality
       host: localhost
       port: 27017
-      username: nearbyse
-      password: Kuchkito420
+      username: xxxxxxxxxx
+      password: xxxxxxxxxx
 
 constants:
   access_token_validity_seconds: 31104000
@@ -17,24 +17,21 @@ constants:
   header_string: Authorization
   authorities_key: scopes
   otp_len: 6
-#  twilio_account_sid: AC3d12ec70424b027d6a2122a0cca3022c
-#  twilio_auth_token: f4da006a65cd6b5e143b2dd345e5e1e3
-#  twilio_register_phone_number: +17865634883
   opt_provider_primary: exotel
-  twilio_account_sid: ACa38280a59b0f0c453ea1a84dceb8ea48
-  twilio_auth_token: 8d6f7eb833c7d9344d92ea36dc9161e2
+  twilio_account_sid: xxxxxxxxxx
+  twilio_auth_token: xxxxxxxxxx
   twilio_register_phone_number: +16787261905
   exotel_account_sid: cuberreality1
-  exotel_account_user: d8eb0911f06fd4c6faa9d6ac754b3334e012e9f0396fd395
-  exotel_auth_token: f7b4363e122ef83f1a758cc150f96b18f28e3338cce23957
+  exotel_account_user: xxxxxxxxxx
+  exotel_auth_token: xxxxxxxxxx
   exotel_register_phone_number: CBRLTY
-  reseller_notification_server_key: key=AAAAtwOmtzc:APA91bHAOpuP8ubYFtwoQpOzLFZyLe1VjFqipyBAqPc3-DIA8XGKnj223TUXtMPIKTtvAUObVaLkuF80VPPYGchGzvC9pM4tvMZ1zC2TTZawh6pQhN9CUHRx0J4lOzm9PZFS_E2-m_1s
+  reseller_notification_server_key: xxxxxxxxxx
   soft_app_update_version: 4200
   hard_app_update_version: 4100
-  crm_refresh_token: 1000.9badc856a46e840bb7b8061f9bb1f7ff.06160d061a7bfe6d67d79b6b6b8facaf
-  crm_client_id: 1000.DJ1HFBUXXQ8YQUO4CH5KL5PB2KPZAM
-  crm_client_secret: 694014c68fdff36d4cae0d420b581e700f1f88b5da
+  crm_refresh_token: xxxxxxxxxx
+  crm_client_id: xxxxxxxxxx
+  crm_client_secret: xxxxxxxxxx
   crm_base_url: https://www.zohoapis.in
   crm_auth_base_url: https://accounts.zoho.in
-  bearer_token: 1000.427aae7a1166ad8d8447d69d2a4c6002.0dae9444f557bf504a0f2afa683aa4af
+  bearer_token: xxxxxxxxxx
 
